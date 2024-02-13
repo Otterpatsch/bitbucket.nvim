@@ -39,4 +39,11 @@ function M.create_vertial_slit()
   return buffer_number
 end
 
+function M.concate_tables(first, second)
+  for i=1,#second do
+      first[#first+1] = second[i]
+  end
+  return first
+end
+
 return M
