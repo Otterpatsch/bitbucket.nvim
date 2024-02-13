@@ -74,7 +74,7 @@ function M.get_comments(pr_id)
 
   for parent_id, nodes in pairs(nodes_by_parent_id) do
     if parent_id ~= "_root" then
-      tree:set_nodes(nodes, tostring( parent_id ))
+      tree:set_nodes(nodes, ( parent_id ))
     end
   end
   tree:render()
