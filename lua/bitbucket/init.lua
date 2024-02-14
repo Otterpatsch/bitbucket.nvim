@@ -24,12 +24,11 @@ end
 
 
 
-function M.get_pullrequest_by_commit()
+function M.get_pullrequest_by_commit(commithash)
   -- Get pullrequests by given commit if none is given?
   -- Special chase if commit is present in multiple PRS
   -- Then popup to choose PR
-  -- commit = commit or utils.get_current_commit()
-  local commit = "f43d26e"
+  local commit = commithash or vim.fn.system("git rev-parse --short HEAD"):gsub("%W","")
   local request_url = base_request_url .. "commit/" .. commit .. "/pullrequests"
   local response = curl.get(request_url, {
         accept = "application/json",
@@ -37,14 +36,10 @@ function M.get_pullrequest_by_commit()
       })
   local decoded_result = vim.fn.json_decode(response.body)
   if #decoded_result["values"] ~= 1 then
-    print("two elements")
+    error("two elements: handling yet not implemented")
   else
-    pull_request_id = tostring( decoded_result["values"][1]["id"] )
+    return tostring( decoded_result["values"][1]["id"] )
   end
-  local buffer_number = utils.create_vertial_slit()
-  vim.api.nvim_buf_set_lines(buffer_number,0,1,false,{tostring( response.status ).."\\n"..tostring(pull_request_id)})
-  vim.api.nvim_buf_set_lines(buffer_number,1,1,false,{tostring(pull_request_id)})
-
 end
 
 -- Function which visualize the overall Pull Request Comments 
