@@ -74,15 +74,18 @@ function M.get_comments(pr_id)
           return node.id
         end,
         prepare_node = function(node)
-          -- You can format the text however you want here
-          -- Maybe add some colors and styles etc.
-          local lines = { Line({Text(node.author .. "  ".. (node.parent_id or ""))})}
-          for _, raw_line in ipairs(vim.split(node.text, "\n")) do
-            table.insert(lines, Line({ Text("    "..raw_line) }))
+          local line = Line()
+          line:append(string.rep(" ", node:get_depth() - 1))
+          if node:has_children() then
+            line:append(node:is_expanded() and " " or " ", "SpecialChar")
+          else
+            line:append(" ")
           end
-          table.insert(lines, Line({ Text("--------------------") }))
-          if not node:has_children() then
-             table.insert(lines, Line({ Text("--------------------") }))
+          line:append(node.author)
+          local lines = {line}
+
+          for _, raw_line in ipairs(vim.split(node.text, "\n")) do
+            table.insert(lines, Line({ Text(raw_line) }))
           end
           return lines
         end,
