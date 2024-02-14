@@ -22,7 +22,10 @@ function M.get_pull_requests()
   -- and their corresponding branch
 end
 
-
+function M.get_comments_by_commit(commithash)
+  local pr_id = M.get_pullrequest_by_commit(commithash)
+  local comments = M.get_comments(pr_id)
+end
 
 function M.get_pullrequest_by_commit(commithash)
   -- Get pullrequests by given commit if none is given?
@@ -115,8 +118,8 @@ function M.get_comments(pr_id)
   for id in pairs(node_by_id) do
     add_node_to_tree(id)
   end
-
   tree:render()
+  return values
 end
 
 
