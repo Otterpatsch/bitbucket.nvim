@@ -16,6 +16,12 @@ local Line = require("nui.line")
 local Text = require("nui.text")
 local Tree = require("nui.tree")
 
+local comment_split = require("nui.split")({
+  relative = "editor",
+  position = "left",
+  size = "35%",
+})
+
 
 function M.get_pull_requests()
   -- get list of pull requests of PR
@@ -66,9 +72,8 @@ function M.get_comments(pr_id)
     content = vim.fn.json_decode(response.body)
     values = utils.concate_tables(values,content["values"])
   end
-  discussion_bufnr = discussion_bufnr or utils.create_vertial_slit()
   local tree = Tree({
-        bufnr = discussion_bufnr,
+        bufnr = comment_split.bufnr,
         get_node_id = function(node)
           -- this is telling NuiTree where we're storing the id
           return node.id
@@ -131,6 +136,7 @@ function M.get_comments(pr_id)
     add_node_to_tree(id)
   end
   tree:render()
+  comment_split:mount()
   return values
 end
 
