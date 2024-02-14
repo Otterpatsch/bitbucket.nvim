@@ -1,5 +1,4 @@
 M = {}
-require("bitbucket.commands")
 local curl = require("plenary").curl
 local bitbucket_api = "https://api.bitbucket.org/2.0/repositories/"
 local utils = require("bitbucket.utils")
@@ -132,4 +131,5 @@ function M.create_pullrequest()
   curl.post()
 end
 
+require("bitbucket.commands")
 return M
