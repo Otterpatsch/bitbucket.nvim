@@ -54,9 +54,17 @@ function M.get_comments(pr_id)
         accept = "application/json",
         auth = username .. ":" .. app_password
       })
-  -- TODO check if key "next" exist if it does curl next page too until no next exist
   local content = vim.fn.json_decode(response.body)
   local values = content["values"]
+  while content["next"] do
+    request_url = content["next"]
+    response = curl.get(request_url, {
+        accept = "application/json",
+        auth = username .. ":" .. app_password
+    })
+    content = vim.fn.json_decode(response.body)
+    values = utils.concate_tables(values,content["values"])
+  end
   local bufnr = utils.create_vertial_slit()
   local tree = Tree({
         bufnr = bufnr,
