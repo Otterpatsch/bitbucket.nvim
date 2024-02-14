@@ -31,7 +31,7 @@ function M.dump(o)
    end
 end
 
-function M.create_vertial_slit()
+function M.create_vertial_split()
   vim.cmd('vsplit')
   local active_window = vim.api.nvim_get_current_win()
   local buffer_number = vim.api.nvim_create_buf(true, true)
