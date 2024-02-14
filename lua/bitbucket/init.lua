@@ -66,9 +66,7 @@ function M.get_comments(pr_id)
     content = vim.fn.json_decode(response.body)
     values = utils.concate_tables(values,content["values"])
   end
-  print(discussion_bufnr)
   discussion_bufnr = discussion_bufnr or utils.create_vertial_slit()
-  print(discussion_bufnr)
   local tree = Tree({
         bufnr = discussion_bufnr,
         get_node_id = function(node)
