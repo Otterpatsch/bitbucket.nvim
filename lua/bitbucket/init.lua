@@ -136,6 +136,55 @@ function M.get_comments(pr_id)
   for id in pairs(node_by_id) do
     add_node_to_tree(id)
   end
+
+  --- key map actions ---
+  local map_options = { noremap = true, nowait = true }
+  --- collpase current node ---
+  comment_split:map("n", "h", function()
+    local node = tree:get_node()
+
+    if node:collapse() then
+      tree:render()
+  end
+  end, map_options)
+  ----------------------------
+
+  --- collpase all nodes ---
+  comment_split:map("n", "H", function()
+    local updated = false
+
+    for _, node in pairs(tree.nodes.by_id) do
+      updated = node:collapse() or updated
+    end
+
+    if updated then
+      tree:render()
+    end
+  end, map_options)
+  ----------------------------
+
+  -- expand current node
+  comment_split:map("n", "l", function()
+    local node = tree:get_node()
+
+    if node:expand() then
+      tree:render()
+    end
+  end, map_options)
+
+  --- expand all nodes ---
+  comment_split:map("n", "L", function()
+    local updated = false
+
+    for _, node in pairs(tree.nodes.by_id) do
+      updated = node:expand() or updated
+    end
+    if updated then
+      tree:render()
+    end
+  end, map_options)
+  ---------------------
+
   tree:render()
   comment_split:mount()
   return values
