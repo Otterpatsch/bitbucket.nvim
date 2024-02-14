@@ -15,12 +15,7 @@ local Popup = require("nui.popup")
 local Line = require("nui.line")
 local Text = require("nui.text")
 local Tree = require("nui.tree")
-
-local comment_split = require("nui.split")({
-  relative = "editor",
-  position = "left",
-  size = "35%",
-})
+local NuiSplit = require("nui.split")
 
 
 function M.get_pull_requests()
@@ -56,6 +51,12 @@ end
 -- Comments which are not put on some line of code/are linked to a specific file
 function M.get_comments(pr_id)
   pr_id = pr_id or pull_request_id
+  local comment_split = NuiSplit({
+    ns_id = "comments",
+    relative = "editor",
+    position = "left",
+    size = "35%",
+  })
   local request_url = base_request_url .. "/pullrequests/" .. pr_id .. "/comments"
   local response = curl.get(request_url, {
         accept = "application/json",
