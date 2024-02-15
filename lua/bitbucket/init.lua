@@ -25,7 +25,7 @@ end
 
 function M.get_comments_by_commit(commithash)
 	local pr_id = M.get_pullrequest_by_commit(commithash)
-	local comments = M.get_comments(pr_id)
+	PR_Comments = M.get_comments(pr_id)
 end
 
 function M.get_pullrequest_by_commit(commithash)
