@@ -128,7 +128,7 @@ function M.get_comments(pr_id)
 	--- key map actions ---
 	local map_options = { noremap = true, nowait = true }
 	--- collpase current node ---
-	comment_split:map("n", "h", function()
+	comment_split:map("n", "g", function()
 		local node = tree:get_node()
 
 		if node:collapse() then
@@ -138,7 +138,7 @@ function M.get_comments(pr_id)
 	----------------------------
 
 	--- collpase all nodes ---
-	comment_split:map("n", "H", function()
+	comment_split:map("n", "G", function()
 		local updated = false
 
 		for _, node in pairs(tree.nodes.by_id) do
@@ -152,7 +152,7 @@ function M.get_comments(pr_id)
 	----------------------------
 
 	-- expand current node
-	comment_split:map("n", "l", function()
+	comment_split:map("n", ";", function()
 		local node = tree:get_node()
 
 		if node:expand() then
@@ -161,7 +161,7 @@ function M.get_comments(pr_id)
 	end, map_options)
 
 	--- expand all nodes ---
-	comment_split:map("n", "L", function()
+	comment_split:map("n", ":", function()
 		local updated = false
 
 		for _, node in pairs(tree.nodes.by_id) do
