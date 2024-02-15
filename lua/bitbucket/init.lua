@@ -72,7 +72,7 @@ function M.get_comments(pr_id)
 			else
 				line:append("-", "SpecialChar")
 			end
-			line:append(node.author)
+			line:append(node.author .. " on " .. node.date)
 			local lines = { line }
 
 			for _, raw_line in ipairs(vim.split(node.text, "\n")) do
@@ -115,6 +115,7 @@ function M.get_comments(pr_id)
 			author = author,
 			id = id,
 			parent_id = parent_id,
+			date = value["created_on"],
 		}, {})
 		node:expand()
 		node_by_id[id] = node
