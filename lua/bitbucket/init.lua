@@ -67,7 +67,9 @@ function M.get_comments(pr_id)
 		prepare_node = function(node)
 			local line = Line()
       local datetime = node.date
+      local line_length = 80
       local header_text  = " " .. node.author .. " at " .. utils.extract_time(datetime) .. " on " .. utils.extract_date(datetime)
+      header_text = header_text .. " " .. string.rep("─",line_length - string.len(header_text) - node:get_depth())
       if node:is_expanded() then
         if node:get_depth() >1 then
           line:append("├")
@@ -80,7 +82,7 @@ function M.get_comments(pr_id)
             table.insert(lines, Line({ Text("│ "..raw_line) }))
         end
 			  if not node:has_children() then
-          table.insert(lines, Line({Text("╰─".. string.rep("─",100))}))
+          table.insert(lines, Line({Text("╰─".. string.rep("─",line_length))}))
         else
           table.insert(lines, Line({Text("│")}))
         end
