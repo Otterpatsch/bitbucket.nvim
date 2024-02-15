@@ -57,21 +57,7 @@ function M.get_comments(pr_id)
 		size = "35%",
 	})
 	local request_url = base_request_url .. "/pullrequests/" .. pr_id .. "/comments"
-	local response = curl.get(request_url, {
-		accept = "application/json",
-		auth = username .. ":" .. app_password,
-	})
-	local content = vim.fn.json_decode(response.body)
-	local values = content["values"]
-	while content["next"] do
-		request_url = content["next"]
-		response = curl.get(request_url, {
-			accept = "application/json",
-			auth = username .. ":" .. app_password,
-		})
-		content = vim.fn.json_decode(response.body)
-		values = utils.concate_tables(values, content["values"])
-	end
+	local values = utils.get_comments_table(request_url)
 	local tree = Tree({
 		bufnr = comment_split.bufnr,
 		get_node_id = function(node)

@@ -1,4 +1,6 @@
 local Popup = require("nui.popup")
+local repo = require("bitbucket.repo")
+local curl = require("plenary").curl
 local M = {}
 
 M.center_popup = Popup({
@@ -17,6 +19,29 @@ M.center_popup = Popup({
 		},
 	},
 })
+function M.get_comments_table(request_url)
+	local response = curl.get(request_url, {
+		accept = "application/json",
+		auth = repo.username .. ":" .. repo.app_password,
+	})
+	local content = vim.fn.json_decode(response.body)
+	local values = content["values"]
+	while content["next"] do
+		request_url = content["next"]
+		response = curl.get(request_url, {
+			accept = "application/json",
+			auth = repo.username .. ":" .. repo.app_password,
+		})
+		content = vim.fn.json_decode(response.body)
+		values = M.concate_tables(values, content["values"])
+	end
+	for index, value in ipairs(values) do
+		if value["deleted"] then
+			values[index] = nil
+		end
+	end
+	return values
+end
 
 function M.dump(o)
 	if type(o) == "table" then
