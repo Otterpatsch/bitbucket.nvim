@@ -66,25 +66,37 @@ function M.get_comments(pr_id)
 		end,
 		prepare_node = function(node)
 			local line = Line()
-			line:append(string.rep(" ", node:get_depth() - 1))
-			if node:has_children() then
-				line:append(node:is_expanded() and " " or " ", "SpecialChar")
-			else
-				line:append("-", "SpecialChar")
-			end
-			line:append(node.author .. " on " .. node.date)
-			local lines = { line }
-
+      local header_text  = " " .. node.author .. " on " .. node.date
       if node:is_expanded() then
+        if node:get_depth() >1 then
+          line:append("├")
+        else
+          line:append("╭")
+        end
+        line:append(string.rep("─", node:get_depth()) .. header_text)
+			  local lines = { line }
         for _, raw_line in ipairs(vim.split(node.text, "\n")) do
-            table.insert(lines, Line({ Text(raw_line) }))
+            table.insert(lines, Line({ Text("│ "..raw_line) }))
+        end
+			  if not node:has_children() then
+          table.insert(lines, Line({Text("╰─".. string.rep("─",100))}))
+        else
+          table.insert(lines, Line({Text("│")}))
+        end
+			  return lines
+      else
+        if node:get_parent_id() then
+          return {
+            Line({Text("├".. string.rep("─",node:get_depth())), Text(header_text)}),
+            Line({Text("")})
+         }
+        else
+          return {
+            Line({Text("","SpecialChar"), Text(header_text)}),
+            Line({Text("")})
+          }
         end
       end
-
-			if not node:has_children() then
-				table.insert(lines, Line({}))
-			end
-			return lines
 		end,
 	})
 	local node_by_id = {}
