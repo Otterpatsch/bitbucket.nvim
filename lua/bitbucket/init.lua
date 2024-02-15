@@ -75,9 +75,12 @@ function M.get_comments(pr_id)
 			line:append(node.author .. " on " .. node.date)
 			local lines = { line }
 
-			for _, raw_line in ipairs(vim.split(node.text, "\n")) do
-				table.insert(lines, Line({ Text(raw_line) }))
-			end
+      if node:is_expanded() then
+        for _, raw_line in ipairs(vim.split(node.text, "\n")) do
+            table.insert(lines, Line({ Text(raw_line) }))
+        end
+      end
+
 			if not node:has_children() then
 				table.insert(lines, Line({}))
 			end
