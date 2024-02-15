@@ -19,6 +19,15 @@ M.center_popup = Popup({
 		},
 	},
 })
+
+function M.extract_date(datetime)
+  return string.sub(datetime,1,10)
+end
+
+function M.extract_time(datetime)
+  return string.sub(datetime,12,16)
+end
+
 function M.get_comments_table(request_url)
 	local response = curl.get(request_url, {
 		accept = "application/json",

@@ -66,7 +66,8 @@ function M.get_comments(pr_id)
 		end,
 		prepare_node = function(node)
 			local line = Line()
-      local header_text  = " " .. node.author .. " on " .. node.date
+      local datetime = node.date
+      local header_text  = " " .. node.author .. " at " .. utils.extract_time(datetime) .. " on " .. utils.extract_date(datetime)
       if node:is_expanded() then
         if node:get_depth() >1 then
           line:append("├")
