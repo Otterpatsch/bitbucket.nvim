@@ -92,9 +92,8 @@ function M.get_comments(pr_id)
 				.. utils.extract_time(datetime)
 				.. " on "
 				.. utils.extract_date(datetime)
-			header_text = header_text
 				.. " "
-				.. string.rep("─", line_length - string.len(header_text) - node:get_depth())
+			header_text = header_text .. string.rep("─", line_length - string.len(header_text) - node:get_depth())
 			if node:is_expanded() then
 				if node:get_depth() > 1 then
 					line:append("├")
