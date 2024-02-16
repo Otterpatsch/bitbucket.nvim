@@ -58,6 +58,24 @@ function M.get_comments(pr_id)
 	})
 	local request_url = base_request_url .. "/pullrequests/" .. pr_id .. "/comments"
 	local values = utils.get_comments_table(request_url)
+
+	local node_by_id = {}
+	for _, value in ipairs(values) do
+		local text = value["content"]["raw"]
+		local author = value["user"]["display_name"]
+		local id = tostring(value["id"]) -- id needs to be string
+		local parent_id = value["parent"] and tostring(value["parent"]["id"]) -- id needs to be string
+		local node = Tree.Node({
+			text = text,
+			author = author,
+			id = id,
+			parent_id = parent_id,
+			date = value["created_on"],
+		}, {})
+		node:expand()
+		node_by_id[id] = node
+	end
+
 	local tree = Tree({
 		bufnr = comment_split.bufnr,
 		get_node_id = function(node)
@@ -108,7 +126,6 @@ function M.get_comments(pr_id)
 			end
 		end,
 	})
-	local node_by_id = {}
 
 	local function add_node_to_tree(id)
 		local node = tree:get_node(id)
@@ -127,22 +144,6 @@ function M.get_comments(pr_id)
 			add_node_to_tree(parent_id)
 		end
 		tree:add_node(node, parent_id)
-	end
-
-	for _, value in ipairs(values) do
-		local text = value["content"]["raw"]
-		local author = value["user"]["display_name"]
-		local id = tostring(value["id"]) -- id needs to be string
-		local parent_id = value["parent"] and tostring(value["parent"]["id"]) -- id needs to be string
-		local node = Tree.Node({
-			text = text,
-			author = author,
-			id = id,
-			parent_id = parent_id,
-			date = value["created_on"],
-		}, {})
-		node:expand()
-		node_by_id[id] = node
 	end
 
 	for id in pairs(node_by_id) do
