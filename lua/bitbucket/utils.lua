@@ -46,7 +46,7 @@ function M.get_comments_table(request_url)
 	end
 	for index, value in ipairs(values) do
 		if value["deleted"] then
-			values[index] = nil
+			table.remove(values, index)
 		end
 	end
 	return values
