@@ -72,7 +72,6 @@ function M.get_comments(pr_id)
 			parent_id = parent_id,
 			date = value["created_on"],
 		}, {})
-		node:expand()
 		node_by_id[id] = node
 	end
 
@@ -117,15 +116,16 @@ function M.get_comments(pr_id)
 					local parent_node = node_by_id[node:get_parent_id()]
 					local parent_child_ids = parent_node:get_child_ids()
 					local last_child_id = parent_child_ids[#parent_child_ids]
-					if last_child_id == node.id then
+					if last_child_id == node.id and not node:has_children() then
 						return {
 							Line({ Text("├" .. string.rep("─", node:get_depth())), Text(header_text) }),
 							Line({}),
 						}
+					else
+						return {
+							Line({ Text("├" .. string.rep("─", node:get_depth())), Text(header_text) }),
+						}
 					end
-					return {
-						Line({ Text("├" .. string.rep("─", node:get_depth())), Text(header_text) }),
-					}
 				else
 					return {
 						Line({ Text("", "SpecialChar"), Text(header_text) }),
@@ -173,15 +173,7 @@ function M.get_comments(pr_id)
 
 	--- collpase all nodes ---
 	comment_split:map("n", "G", function()
-		local updated = false
-
-		for _, node in pairs(tree.nodes.by_id) do
-			updated = node:collapse() or updated
-		end
-
-		if updated then
-			tree:render()
-		end
+		require("bitbucket.tree.mapping").collapse__tree(tree)
 	end, map_options)
 	----------------------------
 
@@ -196,18 +188,12 @@ function M.get_comments(pr_id)
 
 	--- expand all nodes ---
 	comment_split:map("n", ":", function()
-		local updated = false
-
-		for _, node in pairs(tree.nodes.by_id) do
-			updated = node:expand() or updated
-		end
-		if updated then
-			tree:render()
-		end
+		require("bitbucket.tree.mapping").expand_tree(tree)
 	end, map_options)
 	---------------------
 
 	tree:render()
+	require("bitbucket.tree.mapping").expand_tree(tree)
 	comment_split:mount()
 	return values
 end
