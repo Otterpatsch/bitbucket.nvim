@@ -136,28 +136,7 @@ function M.get_comments(pr_id)
 		end,
 	})
 
-	local function add_node_to_tree(id)
-		local node = tree:get_node(id)
-		if node then
-			return
-		end
-
-		node = node_by_id[id]
-		if not node then
-			return
-		end
-
-		local parent_id = node.parent_id
-		if parent_id and not tree:get_node(parent_id) then
-			-- ensure parent is added before the child
-			add_node_to_tree(parent_id)
-		end
-		tree:add_node(node, parent_id)
-	end
-
-	for id in pairs(node_by_id) do
-		add_node_to_tree(id)
-	end
+	M.add_node_to_tree(node_by_id, tree)
 
 	--- key map actions ---
 	local map_options = { noremap = true, nowait = true }
@@ -196,6 +175,27 @@ function M.get_comments(pr_id)
 	require("bitbucket.tree.mapping").expand_tree(tree)
 	comment_split:mount()
 	return values
+end
+
+function M.add_node_to_tree(node_by_id, tree)
+	for id in pairs(node_by_id) do
+		local node = tree:get_node(id)
+		if node then
+			return
+		end
+
+		node = node_by_id[id]
+		if not node then
+			return
+		end
+
+		local parent_id = node.parent_id
+		if parent_id and not tree:get_node(parent_id) then
+			-- ensure parent is added before the child
+			M.add_node_to_tree(parent_id)
+		end
+		tree:add_node(node, parent_id)
+	end
 end
 
 function M.create_pullrequest()
