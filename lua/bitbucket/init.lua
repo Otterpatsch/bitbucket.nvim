@@ -98,12 +98,11 @@ function M.get_comments(pr_id)
 				if node:get_parent_id() then
 					return {
 						Line({ Text("├" .. string.rep("─", node:get_depth())), Text(header_text) }),
-						Line({ Text("") }),
 					}
 				else
 					return {
 						Line({ Text("", "SpecialChar"), Text(header_text) }),
-						Line({ Text("") }),
+						Line({}),
 					}
 				end
 			end
