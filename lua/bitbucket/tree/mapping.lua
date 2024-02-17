@@ -23,4 +23,38 @@ function M.collapse__tree(tree)
 	end
 end
 
+function M.add_keymap_actions(comment_split, tree)
+	local map_options = { noremap = true, nowait = true }
+	--- collpase current node ---
+	comment_split:map("n", "g", function()
+		local node = tree:get_node()
+
+		if node:collapse() then
+			tree:render()
+		end
+	end, map_options)
+	----------------------------
+
+	--- collpase all nodes ---
+	comment_split:map("n", "G", function()
+		M.collapse__tree(tree)
+	end, map_options)
+	----------------------------
+
+	-- expand current node
+	comment_split:map("n", ";", function()
+		local node = tree:get_node()
+
+		if node:expand() then
+			tree:render()
+		end
+	end, map_options)
+
+	--- expand all nodes ---
+	comment_split:map("n", ":", function()
+		M.expand_tree(tree)
+	end, map_options)
+	---------------------
+end
+
 return M

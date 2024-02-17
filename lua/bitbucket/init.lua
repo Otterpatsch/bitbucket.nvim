@@ -74,39 +74,7 @@ function M.get_comments(pr_id)
 	})
 
 	tree_utils.add_node_to_tree(node_by_id, tree)
-
-	--- key map actions ---
-	local map_options = { noremap = true, nowait = true }
-	--- collpase current node ---
-	comment_split:map("n", "g", function()
-		local node = tree:get_node()
-
-		if node:collapse() then
-			tree:render()
-		end
-	end, map_options)
-	----------------------------
-
-	--- collpase all nodes ---
-	comment_split:map("n", "G", function()
-		mapping.collapse__tree(tree)
-	end, map_options)
-	----------------------------
-
-	-- expand current node
-	comment_split:map("n", ";", function()
-		local node = tree:get_node()
-
-		if node:expand() then
-			tree:render()
-		end
-	end, map_options)
-
-	--- expand all nodes ---
-	comment_split:map("n", ":", function()
-		mapping.expand_tree(tree)
-	end, map_options)
-	---------------------
+	mapping.add_keymap_actions(comment_split, tree)
 
 	tree:render()
 	mapping.expand_tree(tree)
