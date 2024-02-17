@@ -73,7 +73,9 @@ function M.get_comments(pr_id)
 		end,
 	})
 
-	tree_utils.add_node_to_tree(node_by_id, tree)
+	for id in pairs(node_by_id) do
+		tree_utils.add_node_to_tree(id, tree, node_by_id)
+	end
 	mapping.add_keymap_actions(comment_split, tree)
 
 	tree:render()
