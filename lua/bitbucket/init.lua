@@ -3,6 +3,11 @@ local curl = require("plenary").curl
 local bitbucket_api = "https://api.bitbucket.org/2.0/repositories/"
 local utils = require("bitbucket.utils")
 local repo = require("bitbucket.repo")
+local Popup = require("nui.popup")
+local Line = require("nui.line")
+local Text = require("nui.text")
+local Tree = require("nui.tree")
+local NuiSplit = require("nui.split")
 local workspace = repo.workspace
 local reposlug = repo.reposlug
 local username = repo.username
@@ -11,11 +16,6 @@ local base_request_url = bitbucket_api .. "/" .. workspace .. "/" .. reposlug ..
 local pull_request = {}
 local pull_request_id
 local discussion_bufnr = nil
-local Popup = require("nui.popup")
-local Line = require("nui.line")
-local Text = require("nui.text")
-local Tree = require("nui.tree")
-local NuiSplit = require("nui.split")
 
 function M.get_pull_requests()
 	-- get list of pull requests of PR
