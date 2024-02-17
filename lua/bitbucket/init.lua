@@ -70,6 +70,15 @@ function M.get_comments(pr_id)
 			return node.id
 		end,
 		prepare_node = function(node)
+			local parent_node = node_by_id[node:get_parent_id()]
+			if parent_node then
+				local parent_child_ids = parent_node:get_child_ids()
+				local last_child = parent_child_ids[#parent_child_ids] == node.id
+				node.last_child = last_child and parent_node.last_child
+			else
+				node.last_child = true
+			end
+
 			local line = Line()
 			local datetime = node.date
 			local line_length = 80
@@ -94,17 +103,16 @@ function M.get_comments(pr_id)
 				end
 				if not node:has_children() then
 					table.insert(lines, Line({ Text("╰─" .. string.rep("─", line_length)) }))
-					table.insert(lines, Line({}))
+					if node.last_child then
+						table.insert(lines, Line({}))
+					end
 				else
 					table.insert(lines, Line({ Text("│") }))
 				end
 				return lines
 			else
-				if node:get_parent_id() then
-					local parent_node = node_by_id[node:get_parent_id()]
-					local parent_child_ids = parent_node:get_child_ids()
-					local last_child_id = parent_child_ids[#parent_child_ids]
-					if last_child_id == node.id and not node:has_children() then
+				if parent_node then
+					if node.last_child then
 						return {
 							Line({ Text("├" .. string.rep("─", node:get_depth())), Text(header_text) }),
 							Line({}),

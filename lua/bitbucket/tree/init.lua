@@ -35,6 +35,7 @@ function M.values_to_nodes(values)
 			id = id,
 			parent_id = parent_id,
 			date = value["created_on"],
+			lastchild = false,
 		}, {})
 		node_by_id[id] = node
 	end
