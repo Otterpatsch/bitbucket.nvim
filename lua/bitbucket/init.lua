@@ -3,8 +3,6 @@ local curl = require("plenary").curl
 local utils = require("bitbucket.utils")
 local repo = require("bitbucket.repo")
 local Popup = require("nui.popup")
-local Line = require("nui.line")
-local Text = require("nui.text")
 local NuiTree = require("nui.tree")
 local mapping = require("bitbucket.tree.mapping")
 local NuiSplit = require("nui.split")
@@ -71,64 +69,7 @@ function M.get_comments(pr_id)
 		end,
 		prepare_node = function(node)
 			local parent_node = node_by_id[node:get_parent_id()]
-			if parent_node then
-				local parent_child_ids = parent_node:get_child_ids()
-				local last_child = parent_child_ids[#parent_child_ids] == node.id
-				node.last_child = last_child and parent_node.last_child
-			else
-				node.last_child = true
-			end
-
-			local line = Line()
-			local datetime = node.date
-			local line_length = 80
-			local header_text = " "
-				.. node.author
-				.. " at "
-				.. utils.extract_time(datetime)
-				.. " on "
-				.. utils.extract_date(datetime)
-				.. " "
-			header_text = header_text .. string.rep("─", line_length - string.len(header_text) - node:get_depth())
-			if node:is_expanded() then
-				if node:get_depth() > 1 then
-					line:append("├")
-				else
-					line:append("╭")
-				end
-				line:append(string.rep("─", node:get_depth()) .. header_text)
-				local lines = { line }
-				for _, raw_line in ipairs(vim.split(node.text, "\n")) do
-					table.insert(lines, Line({ Text("│ " .. raw_line) }))
-				end
-				if not node:has_children() then
-					table.insert(lines, Line({ Text("╰─" .. string.rep("─", line_length)) }))
-					if node.last_child then
-						table.insert(lines, Line({}))
-					end
-				else
-					table.insert(lines, Line({ Text("│") }))
-				end
-				return lines
-			else
-				if parent_node then
-					if node.last_child then
-						return {
-							Line({ Text("├" .. string.rep("─", node:get_depth())), Text(header_text) }),
-							Line({}),
-						}
-					else
-						return {
-							Line({ Text("├" .. string.rep("─", node:get_depth())), Text(header_text) }),
-						}
-					end
-				else
-					return {
-						Line({ Text("", "SpecialChar"), Text(header_text) }),
-						Line({}),
-					}
-				end
-			end
+			return tree_utils.node_visualize(node, parent_node)
 		end,
 	})
 
