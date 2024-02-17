@@ -42,7 +42,7 @@ function M.add_keymap_actions(comment_split, tree)
 	----------------------------
 
 	-- expand current node
-	comment_split:map("n", ";", function()
+	comment_split:map("n", "e", function()
 		local node = tree:get_node()
 
 		if node:expand() then
@@ -51,10 +51,14 @@ function M.add_keymap_actions(comment_split, tree)
 	end, map_options)
 
 	--- expand all nodes ---
-	comment_split:map("n", ":", function()
+	comment_split:map("n", "E", function()
 		M.expand_tree(tree)
 	end, map_options)
 	---------------------
+
+	comment_split:map("n", "o", function()
+		--vim.edit:
+	end)
 end
 
 return M
