@@ -56,7 +56,7 @@ function M.get_comments(pr_id)
 	local comment_split = NuiSplit({
 		ns_id = "comments",
 		relative = "editor",
-		position = "left",
+		position = "bottom",
 		size = "35%",
 	})
 	local request_url = base_request_url .. "/pullrequests/" .. pr_id .. "/comments"

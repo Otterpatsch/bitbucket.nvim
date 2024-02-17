@@ -76,15 +76,17 @@ function M.node_visualize(node, parent_node)
 		else
 			line:append("╭")
 		end
-		line:append(string.rep("─", node:get_depth()) .. header_text)
+		line:append(string.rep("─", node:get_depth() * 2 - 1) .. header_text)
 		local lines = { line }
 		for _, raw_line in ipairs(vim.split(node.text, "\n")) do
 			table.insert(lines, Line({ Text("│ " .. raw_line) }))
 		end
 		if not node:has_children() then
-			table.insert(lines, Line({ Text("╰─" .. string.rep("─", line_length)) }))
 			if node.last_child then
+				table.insert(lines, Line({ Text("╰" .. string.rep("─", line_length)) }))
 				table.insert(lines, Line({}))
+			else
+				table.insert(lines, Line({ Text("├" .. string.rep("─", line_length)) }))
 			end
 		else
 			table.insert(lines, Line({ Text("│") }))
