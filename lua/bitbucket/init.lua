@@ -38,6 +38,9 @@ function M.get_pullrequest_by_commit(commithash)
 		accept = "application/json",
 		auth = username .. ":" .. app_password,
 	})
+	if response.status ~= 200 then
+		error("Failed " .. tostring(response.status) .. " " .. request_url)
+	end
 	local decoded_result = vim.fn.json_decode(response.body)
 	if #decoded_result["values"] ~= 1 then
 		error("two elements: handling yet not implemented")
