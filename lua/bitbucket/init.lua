@@ -1,13 +1,15 @@
 M = {}
 local curl = require("plenary").curl
-local bitbucket_api = "https://api.bitbucket.org/2.0/repositories/"
 local utils = require("bitbucket.utils")
 local repo = require("bitbucket.repo")
 local Popup = require("nui.popup")
 local Line = require("nui.line")
 local Text = require("nui.text")
-local Tree = require("nui.tree")
+local NuiTree = require("nui.tree")
+local mapping = require("bitbucket.tree.mapping")
 local NuiSplit = require("nui.split")
+local tree_utils = require("bitbucket.tree")
+local bitbucket_api = "https://api.bitbucket.org/2.0/repositories/"
 local workspace = repo.workspace
 local reposlug = repo.reposlug
 local username = repo.username
@@ -59,23 +61,9 @@ function M.get_comments(pr_id)
 	local request_url = base_request_url .. "/pullrequests/" .. pr_id .. "/comments"
 	local values = utils.get_comments_table(request_url)
 
-	local node_by_id = {}
-	for _, value in ipairs(values) do
-		local text = value["content"]["raw"]
-		local author = value["user"]["display_name"]
-		local id = tostring(value["id"]) -- id needs to be string
-		local parent_id = value["parent"] and tostring(value["parent"]["id"]) -- id needs to be string
-		local node = Tree.Node({
-			text = text,
-			author = author,
-			id = id,
-			parent_id = parent_id,
-			date = value["created_on"],
-		}, {})
-		node_by_id[id] = node
-	end
+	local node_by_id = tree_utils.values_to_nodes(values)
 
-	local tree = Tree({
+	local tree = NuiTree({
 		bufnr = comment_split.bufnr,
 		get_node_id = function(node)
 			-- this is telling NuiTree where we're storing the id
@@ -152,7 +140,7 @@ function M.get_comments(pr_id)
 
 	--- collpase all nodes ---
 	comment_split:map("n", "G", function()
-		require("bitbucket.tree.mapping").collapse__tree(tree)
+		mapping.collapse__tree(tree)
 	end, map_options)
 	----------------------------
 
@@ -167,12 +155,12 @@ function M.get_comments(pr_id)
 
 	--- expand all nodes ---
 	comment_split:map("n", ":", function()
-		require("bitbucket.tree.mapping").expand_tree(tree)
+		mapping.expand_tree(tree)
 	end, map_options)
 	---------------------
 
 	tree:render()
-	require("bitbucket.tree.mapping").expand_tree(tree)
+	mapping.expand_tree(tree)
 	comment_split:mount()
 	return values
 end
