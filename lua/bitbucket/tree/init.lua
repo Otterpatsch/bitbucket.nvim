@@ -29,6 +29,7 @@ function M.values_to_nodes(values)
 		local author = value["user"]["display_name"]
 		local id = tostring(value["id"]) -- id needs to be string
 		local parent_id = value["parent"] and tostring(value["parent"]["id"]) -- id needs to be string
+		local inline = value["inline"]
 		local node = NuiTree.Node({
 			text = text,
 			author = author,
@@ -36,10 +37,22 @@ function M.values_to_nodes(values)
 			parent_id = parent_id,
 			date = value["created_on"],
 			lastchild = false,
+			inline = M.get_inline_info(inline),
 		}, {})
 		node_by_id[id] = node
 	end
 	return node_by_id
+end
+
+function M.get_inline_info(inline)
+	if not inline then
+		return false
+	end
+	return {
+		file = inline["path"],
+		from = inline["from"],
+		to = inline["to"],
+	}
 end
 
 return M
