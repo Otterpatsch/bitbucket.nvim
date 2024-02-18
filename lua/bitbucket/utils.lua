@@ -1,6 +1,8 @@
+local NuiSplit = require("nui.split")
+local NuiTree = require("nui.tree")
 local Popup = require("nui.popup")
-local repo = require("bitbucket.repo")
-local curl = require("plenary").curl
+local tree_utils = require("bitbucket.tree")
+local mapping = require("bitbucket.tree.mapping")
 local M = {}
 
 M.center_popup = Popup({
@@ -20,27 +22,38 @@ M.center_popup = Popup({
 	},
 })
 
-function M.get_comments_table(request_url)
-	local response = curl.get(request_url, {
-		accept = "application/json",
-		auth = repo.username .. ":" .. repo.app_password,
+-- Function which visualize the overall Pull Request Comments
+-- Comments which are not put on some line of code/are linked to a specific file
+function M.comments_view(values)
+	local comment_split = NuiSplit({
+		ns_id = "comments",
+		relative = "editor",
+		position = "bottom",
+		size = "35%",
 	})
-	local content = vim.fn.json_decode(response.body)
-	local values = content["values"]
-	while content["next"] do
-		request_url = content["next"]
-		response = curl.get(request_url, {
-			accept = "application/json",
-			auth = repo.username .. ":" .. repo.app_password,
-		})
-		content = vim.fn.json_decode(response.body)
-		values = M.concate_tables(values, content["values"])
+
+	local node_by_id = tree_utils.values_to_nodes(values)
+
+	local tree = NuiTree({
+		bufnr = comment_split.bufnr,
+		get_node_id = function(node)
+			-- this is telling NuiTree where we're storing the id
+			return node.id
+		end,
+		prepare_node = function(node)
+			local parent_node = node_by_id[node:get_parent_id()]
+			return tree_utils.node_visualize(node, parent_node)
+		end,
+	})
+
+	for id in pairs(node_by_id) do
+		tree_utils.add_node_to_tree(id, tree, node_by_id)
 	end
-	for index, value in ipairs(values) do
-		if value["deleted"] then
-			table.remove(values, index)
-		end
-	end
+	mapping.add_keymap_actions(comment_split, tree)
+
+	tree:render()
+	mapping.expand_tree(tree)
+	comment_split:mount()
 	return values
 end
 

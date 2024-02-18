@@ -3,10 +3,6 @@ local curl = require("plenary").curl
 local utils = require("bitbucket.utils")
 local repo = require("bitbucket.repo")
 local Popup = require("nui.popup")
-local NuiTree = require("nui.tree")
-local mapping = require("bitbucket.tree.mapping")
-local NuiSplit = require("nui.split")
-local tree_utils = require("bitbucket.tree")
 local bitbucket_api = "https://api.bitbucket.org/2.0/repositories/"
 local workspace = repo.workspace
 local reposlug = repo.reposlug
@@ -14,7 +10,6 @@ local username = repo.username
 local app_password = repo.app_password
 local base_request_url = bitbucket_api .. "/" .. workspace .. "/" .. reposlug .. "/"
 local pull_request = {}
-local pull_request_id
 local discussion_bufnr = nil
 
 function M.get_pull_requests()
@@ -24,8 +19,10 @@ function M.get_pull_requests()
 end
 
 function M.get_comments_by_commit(commithash)
-	local pr_id = M.get_pullrequest_by_commit(commithash)
-	PR_Comments = M.get_comments(pr_id)
+	PR_ID = M.get_pullrequest_by_commit(commithash)
+	print(PR_ID)
+	local comments = M.get_comments_table(PR_ID)
+	PR_Comments = utils.comments_view(comments)
 end
 
 function M.get_pullrequest_by_commit(commithash)
@@ -49,41 +46,29 @@ function M.get_pullrequest_by_commit(commithash)
 	end
 end
 
--- Function which visualize the overall Pull Request Comments
--- Comments which are not put on some line of code/are linked to a specific file
-function M.get_comments(pr_id)
-	pr_id = pr_id or pull_request_id
-	local comment_split = NuiSplit({
-		ns_id = "comments",
-		relative = "editor",
-		position = "bottom",
-		size = "35%",
-	})
+function M.get_comments_table(pr_id)
+	pr_id = pr_id or PR_ID
 	local request_url = base_request_url .. "/pullrequests/" .. pr_id .. "/comments"
-	local values = utils.get_comments_table(request_url)
-
-	local node_by_id = tree_utils.values_to_nodes(values)
-
-	local tree = NuiTree({
-		bufnr = comment_split.bufnr,
-		get_node_id = function(node)
-			-- this is telling NuiTree where we're storing the id
-			return node.id
-		end,
-		prepare_node = function(node)
-			local parent_node = node_by_id[node:get_parent_id()]
-			return tree_utils.node_visualize(node, parent_node)
-		end,
+	local response = curl.get(request_url, {
+		accept = "application/json",
+		auth = repo.username .. ":" .. repo.app_password,
 	})
-
-	for id in pairs(node_by_id) do
-		tree_utils.add_node_to_tree(id, tree, node_by_id)
+	local content = vim.fn.json_decode(response.body)
+	local values = content["values"]
+	while content["next"] do
+		request_url = content["next"]
+		response = curl.get(request_url, {
+			accept = "application/json",
+			auth = repo.username .. ":" .. repo.app_password,
+		})
+		content = vim.fn.json_decode(response.body)
+		values = utils.concate_tables(values, content["values"])
 	end
-	mapping.add_keymap_actions(comment_split, tree)
-
-	tree:render()
-	mapping.expand_tree(tree)
-	comment_split:mount()
+	for index, value in ipairs(values) do
+		if value["deleted"] then
+			table.remove(values, index)
+		end
+	end
 	return values
 end
 
