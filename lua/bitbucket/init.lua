@@ -78,9 +78,25 @@ function M.create_pullrequest()
 	curl.post()
 end
 
+function M.comment_popup(comment_id, old_text)
+	local popup = utils.create_popup("Update Comment")
+	vim.api.nvim_buf_set_lines(popup.bufnr, 0, #old_text, false, old_text)
+	popup:map("n", "<leader><CR>", function()
+		M.update_comment(
+			comment_id,
+			PR_ID,
+			vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
+		)
+	end, { noremap = true })
+	popup:mount()
+end
+
 function M.update_comment(comment_id, pr_id, new_text)
 	comment_id = tostring(comment_id)
 	pr_id = tostring(pr_id)
+	if type(new_text) == "table" then
+		new_text = table.concat(new_text, "\n")
+	end
 	local request_url = base_request_url .. "pullrequests/" .. pr_id .. "/comments/" .. comment_id
 	local data = vim.fn.json_encode({
 		content = {

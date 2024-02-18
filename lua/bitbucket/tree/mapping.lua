@@ -56,9 +56,14 @@ function M.add_keymap_actions(comment_split, tree)
 	end, map_options)
 	---------------------
 
-	comment_split:map("n", "o", function()
-		--vim.edit:
-	end)
+	comment_split:map("n", "u", function()
+		local node = tree:get_node()
+		local lines = {}
+		for _, raw_line in ipairs(vim.split(node.text, "\n")) do
+			table.insert(lines, raw_line)
+		end
+		require("bitbucket.init").comment_popup(node.id, lines)
+	end, map_options)
 end
 
 return M

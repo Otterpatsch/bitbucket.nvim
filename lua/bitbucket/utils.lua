@@ -5,22 +5,25 @@ local tree_utils = require("bitbucket.tree")
 local mapping = require("bitbucket.tree.mapping")
 local M = {}
 
-M.center_popup = Popup({
-	position = "50%",
-	size = {
-		width = "80%",
-		height = "60%",
-	},
-	enter = true,
-	focusable = true,
-	border = {
-		style = "rounded",
-		text = {
-			top = "Request Content",
-			top_align = "center",
+function M.create_popup(titel, width, height)
+	return Popup({
+		position = "50%",
+		relative = "editor",
+		size = {
+			width = width or 100,
+			height = height or 30,
 		},
-	},
-})
+		enter = true,
+		focusable = true,
+		border = {
+			style = "rounded",
+			text = {
+				top = titel,
+				top_align = "center",
+			},
+		},
+	})
+end
 
 -- Function which visualize the overall Pull Request Comments
 -- Comments which are not put on some line of code/are linked to a specific file
