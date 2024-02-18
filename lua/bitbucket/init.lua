@@ -93,5 +93,27 @@ function M.create_pullrequest()
 	curl.post()
 end
 
+function M.update_comment(comment_id, pr_id, new_text)
+	comment_id = tostring(comment_id)
+	pr_id = tostring(pr_id)
+	local request_url = base_request_url .. "pullrequests/" .. pr_id .. "/comments/" .. comment_id
+	local data = vim.fn.json_encode({
+		content = {
+			raw = new_text,
+		},
+	})
+	local response = curl.put(request_url, {
+		auth = repo.username .. ":" .. repo.app_password,
+		body = data,
+		headers = {
+			content_type = "application/json",
+		},
+	})
+	if response.status ~= 200 then
+		error("Failed with " .. tostring(response.status) .. "\n" .. utils.dump(response.body))
+	end
+	return response
+end
+
 require("bitbucket.commands")
 return M
