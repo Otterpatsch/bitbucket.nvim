@@ -93,7 +93,7 @@ end
 ---Creates and mount a popup to edit a comment
 ---@param comment_id string: the id of the comment which should be edited
 ---@param old_text table: a table which contains lines by string
-function M.comment_popup(comment_id, old_text)
+function M.comment_update_popup(comment_id, old_text)
 	local popup = utils.create_popup("Update Comment")
 	vim.api.nvim_buf_set_lines(popup.bufnr, 0, #old_text, false, old_text)
 	popup:map("n", "<leader><CR>", function()
@@ -120,20 +120,21 @@ end
 function M.comment_creation_popup(parent_id)
 	local popup = utils.create_popup("Create Comment")
 	popup:map("n", "<leader><CR>", function()
-		M.request_post_comment(
-			parent_id,
-			PR_ID,
-			vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
-		)
-		-- TODO
-		-- use notify to notify user of response.status
-		--   403 permission denied
-		--   200 success
-		--   and so on
-		-- update node itself on success
-		--   have global tree
-		--   update node.text
-		--   rerender tree
+		local choice = vim.fn.confirm("Send comment?", "&Yes\n&No\n&Quit")
+		if choice == 1 then
+			M.request_to_post_comment(
+				parent_id,
+				PR_ID,
+				vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
+			)
+			vim.api.nvim_buf_delete(popup.bufnr, {})
+		-- TODO update node itself on success
+		-- have global tree
+		-- update node.text
+		-- rerender tree
+		elseif choice == 3 then
+			vim.api.nvim_buf_delete(popup.bufnr, {})
+		end
 	end, { noremap = true })
 	popup:mount()
 end
@@ -143,7 +144,7 @@ end
 ---@param pr_id string: pr id to which the comment belong
 ---@param new_text string or table: the updated text
 ---@return table: the response from the api call
-function M.request_post_comment(parent_id, pr_id, new_text)
+function M.request_to_post_comment(parent_id, pr_id, new_text)
 	if type(new_text) == "table" then
 		new_text = table.concat(new_text, "\n")
 	end
