@@ -1,3 +1,4 @@
+require("bitbucket.commands")
 M = {}
 local curl = require("plenary").curl
 local utils = require("bitbucket.utils")
@@ -116,5 +117,4 @@ function M.update_comment(comment_id, pr_id, new_text)
 	return response
 end
 
-require("bitbucket.commands")
 return M
