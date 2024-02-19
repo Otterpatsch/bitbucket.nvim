@@ -134,14 +134,16 @@ function M.comment_creation_popup(parent_id)
 				PR_ID,
 				vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
 			)
-      if response.status ~= 201 then
-        error("Failed with " .. tostring(response.status) .. "\n" .. utils.dump(response.body))
+      if response.status ~= 200 then
+        notify(response.body,"error")
+      elseif response.status == 200 then
+        notify("Success", "Info")
+			  vim.api.nvim_buf_delete(popup.bufnr, {})
       end
-			vim.api.nvim_buf_delete(popup.bufnr, {})
-		-- TODO update node itself on success
-		-- have global tree
-		-- update node.text
-		-- rerender tree
+      -- TODO update node itself on success
+      -- have global tree
+      -- update node.text
+      -- rerender tree
 		elseif choice == 3 then
 			vim.api.nvim_buf_delete(popup.bufnr, {})
 		end
