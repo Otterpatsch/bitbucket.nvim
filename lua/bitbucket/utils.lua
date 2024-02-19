@@ -25,8 +25,9 @@ function M.create_popup(titel, width, height)
 	})
 end
 
--- Function which visualize the overall Pull Request Comments
--- Comments which are not put on some line of code/are linked to a specific file
+---Function which visualize the overall Pull Request Comments
+---@param values table: a table containing all the non removed comments of a Pull Request
+---@return NuiTree: tree which contains all the comment nodes
 function M.comments_view(values)
 	local comment_split = NuiSplit({
 		ns_id = "comments",
@@ -83,6 +84,10 @@ function M.create_vertial_split()
 	return buffer_number
 end
 
+--- Function which concatenates two tables together
+---@param first table: first table onto which the second is concatenated
+---@param second  table: second table which will be added to the first table
+---@return table: combined table
 function M.concate_tables(first, second)
 	for i = 1, #second do
 		first[#first + 1] = second[i]
