@@ -19,6 +19,12 @@ function M.get_pull_requests()
 	-- and their corresponding branch
 end
 
+---Create the comments_view of a PR
+---Calls the responding function to present the comments summary
+---view for a pull request which contains the given commithash
+---If no commithash is given then the current one is taken
+---@param commithash string: commit hash (optional)
+---@return NuiTree: table which contains all the comments as nodes
 function M.get_comments_by_commit(commithash)
 	PR_ID = M.get_pullrequest_by_commit(commithash)
 	PR_Comments = M.request_comments_table(PR_ID)
@@ -26,10 +32,11 @@ function M.get_comments_by_commit(commithash)
 	return CommentTree
 end
 
+---Send a request to receive the Pull request id by a commithash
+---If no commithash is given then the current commit is taken
+---@param commithash string: the shortened commit hash
+---@return string: pull request id
 function M.get_pullrequest_by_commit(commithash)
-	-- Get pullrequests by given commit if none is given?
-	-- Special chase if commit is present in multiple PRS
-	-- Then popup to choose PR
 	local commit = commithash or vim.fn.system("git rev-parse --short HEAD"):gsub("%W", "")
 	local request_url = base_request_url .. "commit/" .. commit .. "/pullrequests"
 	local response = curl.get(request_url, {
@@ -41,13 +48,20 @@ function M.get_pullrequest_by_commit(commithash)
 	end
 	local decoded_result = vim.fn.json_decode(response.body)
 	if #decoded_result["values"] ~= 1 then
+		-- Special chase if commit is present in multiple PRS
+		-- Then popup to choose PR
 		error("two elements: handling yet not implemented")
 	else
 		return tostring(decoded_result["values"][1]["id"])
 	end
 end
 
-function M.get_comments_table(pr_id)
+---Send a request to the bitbucket api to receive all comments on a given Pullrequest
+---If multiple pages are existing the values are concatenated
+---Afterwards all comments which where deleted are dropped
+---@param pr_id string: the pull request id
+---@return table: a table containing all the comments of a PR
+function M.request_comments_table(pr_id)
 	pr_id = pr_id or PR_ID
 	local request_url = base_request_url .. "/pullrequests/" .. pr_id .. "/comments"
 	local response = curl.get(request_url, {
@@ -79,6 +93,9 @@ function M.create_pullrequest()
 	curl.post()
 end
 
+---Creates and mount a popup to edit a comment
+---@param comment_id string: the id of the comment which should be edited
+---@param old_text table: a table which contains lines by string
 function M.comment_popup(comment_id, old_text)
 	local popup = utils.create_popup("Update Comment")
 	vim.api.nvim_buf_set_lines(popup.bufnr, 0, #old_text, false, old_text)
@@ -88,10 +105,24 @@ function M.comment_popup(comment_id, old_text)
 			PR_ID,
 			vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
 		)
+		-- TODO
+		-- use notify to notify user of response.status
+		--   403 permission denied
+		--   200 success
+		--   and so on
+		-- update node itself on success
+		--   have global tree
+		--   update node.text
+		--   rerender tree
 	end, { noremap = true })
 	popup:mount()
 end
 
+---Send a put request to update the comment with the given text
+---@param comment_id string: comment id to update
+---@param pr_id string: pr id to which the comment belong
+---@param new_text string or table: the updated text
+---@return table: the response from the api call
 function M.update_comment(comment_id, pr_id, new_text)
 	comment_id = tostring(comment_id)
 	pr_id = tostring(pr_id)
