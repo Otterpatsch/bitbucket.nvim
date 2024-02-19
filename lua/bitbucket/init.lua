@@ -21,9 +21,9 @@ end
 
 function M.get_comments_by_commit(commithash)
 	PR_ID = M.get_pullrequest_by_commit(commithash)
-	print(PR_ID)
-	local comments = M.get_comments_table(PR_ID)
-	PR_Comments = utils.comments_view(comments)
+	PR_Comments = M.request_comments_table(PR_ID)
+	CommentTree = utils.comments_view(comments)
+	return CommentTree
 end
 
 function M.get_pullrequest_by_commit(commithash)

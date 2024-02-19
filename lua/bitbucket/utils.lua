@@ -57,7 +57,7 @@ function M.comments_view(values)
 	tree:render()
 	mapping.expand_tree(tree)
 	comment_split:mount()
-	return values
+	return tree
 end
 
 function M.dump(o)
