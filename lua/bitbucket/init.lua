@@ -115,6 +115,58 @@ function M.comment_popup(comment_id, old_text)
 	popup:mount()
 end
 
+---Creates and mount a popup to edit a comment
+---@param parent_id string: the id of the comment which should be edited
+function M.comment_creation_popup(parent_id)
+	local popup = utils.create_popup("Create Comment")
+	popup:map("n", "<leader><CR>", function()
+		M.request_post_comment(
+			parent_id,
+			PR_ID,
+			vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
+		)
+		-- TODO
+		-- use notify to notify user of response.status
+		--   403 permission denied
+		--   200 success
+		--   and so on
+		-- update node itself on success
+		--   have global tree
+		--   update node.text
+		--   rerender tree
+	end, { noremap = true })
+	popup:mount()
+end
+
+---Send a post request to create the comment with the given text
+---@param parent_id string: parent id
+---@param pr_id string: pr id to which the comment belong
+---@param new_text string or table: the updated text
+---@return table: the response from the api call
+function M.request_post_comment(parent_id, pr_id, new_text)
+	if type(new_text) == "table" then
+		new_text = table.concat(new_text, "\n")
+	end
+	local request_url = base_request_url .. "pullrequests/" .. pr_id .. "/comments"
+	local data = vim.fn.json_encode({
+		content = {
+			raw = new_text,
+		},
+	})
+
+	local response = curl.post(request_url, {
+		auth = repo.username .. ":" .. repo.app_password,
+		body = data,
+		headers = {
+			content_type = "application/json",
+		},
+	})
+	if response.status ~= 201 then
+		error("Failed with " .. tostring(response.status) .. "\n" .. utils.dump(response.body))
+	end
+	return response
+end
+
 ---Send a put request to update the comment with the given text
 ---@param comment_id string: comment id to update
 ---@param pr_id string: pr id to which the comment belong

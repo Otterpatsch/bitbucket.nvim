@@ -64,6 +64,10 @@ function M.add_keymap_actions(comment_split, tree)
 		end
 		require("bitbucket.init").comment_popup(node.id, lines)
 	end, map_options)
+
+	comment_split:map("n", "c", function()
+		require("bitbucket.init").comment_creation_popup("", lines)
+	end, map_options)
 end
 
 return M
