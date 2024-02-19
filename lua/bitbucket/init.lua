@@ -3,6 +3,7 @@ M = {}
 local curl = require("plenary").curl
 local utils = require("bitbucket.utils")
 local repo = require("bitbucket.repo")
+local notify = require("notify")
 local bitbucket_api = "https://api.bitbucket.org/2.0/repositories"
 local workspace = repo.workspace
 local reposlug = repo.reposlug
@@ -96,22 +97,28 @@ end
 function M.comment_update_popup(comment_id, old_text)
 	local popup = utils.create_popup("Update Comment")
 	vim.api.nvim_buf_set_lines(popup.bufnr, 0, #old_text, false, old_text)
-	popup:map("n", "<leader><CR>", function()
-		M.request_to_update_comment(
-			comment_id,
-			PR_ID,
-			vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
-		)
-		-- TODO
-		-- use notify to notify user of response.status
-		--   403 permission denied
-		--   200 success
-		--   and so on
-		-- update node itself on success
-		--   have global tree
-		--   update node.text
-		--   rerender tree
-	end, { noremap = true })
+  popup:map("n", "<leader><CR>", function()
+    local choice = vim.fn.confirm("Send comment?", "&Yes\n&No\n&Quit")
+    if choice == 1 then
+       local response = M.request_to_update_comment(
+        comment_id,
+        PR_ID,
+        vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
+      )
+      if response.status ~= 201 then
+        notify(response.body,"error")
+      elseif response.status == 200 then
+        notify("Success","Info")
+        -- TODO
+        --   have global tree
+        --   update node.text
+        --   rerender tree
+      end
+      vim.api.nvim_buf_delete(popup.bufnr, {})
+    elseif choice == 3 then
+      vim.api.nvim_buf_delete(popup.bufnr, {})
+    end
+  end, { noremap = true })
 	popup:mount()
 end
 
@@ -122,11 +129,14 @@ function M.comment_creation_popup(parent_id)
 	popup:map("n", "<leader><CR>", function()
 		local choice = vim.fn.confirm("Send comment?", "&Yes\n&No\n&Quit")
 		if choice == 1 then
-			M.request_to_post_comment(
+			local response = M.request_to_post_comment(
 				parent_id,
 				PR_ID,
 				vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
 			)
+      if response.status ~= 201 then
+        error("Failed with " .. tostring(response.status) .. "\n" .. utils.dump(response.body))
+      end
 			vim.api.nvim_buf_delete(popup.bufnr, {})
 		-- TODO update node itself on success
 		-- have global tree
@@ -162,9 +172,6 @@ function M.request_to_post_comment(parent_id, pr_id, new_text)
 			content_type = "application/json",
 		},
 	})
-	if response.status ~= 201 then
-		error("Failed with " .. tostring(response.status) .. "\n" .. utils.dump(response.body))
-	end
 	return response
 end
 
