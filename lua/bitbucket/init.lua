@@ -97,7 +97,7 @@ function M.comment_popup(comment_id, old_text)
 	local popup = utils.create_popup("Update Comment")
 	vim.api.nvim_buf_set_lines(popup.bufnr, 0, #old_text, false, old_text)
 	popup:map("n", "<leader><CR>", function()
-		M.update_comment(
+		M.request_to_update_comment(
 			comment_id,
 			PR_ID,
 			vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
@@ -172,7 +172,7 @@ end
 ---@param pr_id string: pr id to which the comment belong
 ---@param new_text string or table: the updated text
 ---@return table: the response from the api call
-function M.update_comment(comment_id, pr_id, new_text)
+function M.request_to_update_comment(comment_id, pr_id, new_text)
 	comment_id = tostring(comment_id)
 	pr_id = tostring(pr_id)
 	if type(new_text) == "table" then
