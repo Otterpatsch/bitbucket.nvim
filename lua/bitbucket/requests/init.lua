@@ -36,9 +36,6 @@ function M.get_pullrequest_by_commit(commithash)
 		accept = "application/json",
 		auth = repo.username .. ":" .. repo.app_password,
 	})
-	if response.status ~= 200 then
-		error("Failed " .. tostring(response.status) .. " " .. request_url)
-	end
 	local decoded_result = vim.fn.json_decode(response.body)
 	if #decoded_result["values"] ~= 1 then
 		-- Special chase if commit is present in multiple PRS
@@ -93,7 +90,7 @@ function M.update_popup(comment_id, old_text)
 	local popup = utils.create_popup("Update Comment")
 	vim.api.nvim_buf_set_lines(popup.bufnr, 0, #old_text, false, old_text)
 	popup:map("n", "<leader><CR>", function()
-		local choice = vim.fn.confirm("Send comment?", "&Yes\n&No\n&Quit")
+		local choice = vim.fn.confirm("Update comment?", "&Yes\n&No\n&Quit")
 		if choice == 1 then
 			local response = M.update_comment(
 				comment_id,
@@ -118,7 +115,7 @@ function M.update_popup(comment_id, old_text)
 end
 
 ---Creates and mount a popup to edit a comment
----@param parent_id string: the id of the comment which should be edited
+---@param parent_id string or nil: the id of the comment which should be edited
 function M.new_comment_popup(parent_id)
 	local popup = utils.create_popup("Create Comment")
 	popup:map("n", "<leader><CR>", function()
@@ -147,8 +144,8 @@ function M.new_comment_popup(parent_id)
 end
 
 ---Send a post request to create the comment with the given text
----@param parent_id string: parent id
----@param pr_id string: pr id to which the comment belong
+---@param parent_id string or nil: parent id
+---@param pr_id string nil: pr id to which the comment belong
 ---@param new_text string or table: the updated text
 ---@return table: the response from the api call
 function M.new_comment(parent_id, pr_id, new_text)
@@ -156,11 +153,24 @@ function M.new_comment(parent_id, pr_id, new_text)
 		new_text = table.concat(new_text, "\n")
 	end
 	local request_url = base_request_url .. "pullrequests/" .. pr_id .. "/comments"
-	local data = vim.fn.json_encode({
-		content = {
-			raw = new_text,
-		},
-	})
+	local data = nil
+
+	if parent_id then
+		data = vim.fn.json_encode({
+			content = {
+				raw = new_text,
+			},
+			parent = {
+				id = tonumber(parent_id),
+			},
+		})
+	else
+		data = vim.fn.json_encode({
+			content = {
+				raw = new_text,
+			},
+		})
+	end
 
 	local response = curl.post(request_url, {
 		auth = repo.username .. ":" .. repo.app_password,
@@ -196,9 +206,6 @@ function M.update_comment(comment_id, pr_id, new_text)
 			content_type = "application/json",
 		},
 	})
-	if response.status ~= 200 then
-		error("Failed with " .. tostring(response.status) .. "\n" .. utils.dump(response.body))
-	end
 	return response
 end
 

@@ -1,5 +1,7 @@
+local requests = require("bitbucket.requests.init")
+
 vim.api.nvim_create_user_command("TestComments", function()
-	require("bitbucket.requests").get_comments_by_commit()
+	requests.get_comments_by_commit()
 end, {})
 
 vim.api.nvim_create_user_command("Clear", function()
@@ -8,5 +10,5 @@ end, {})
 
 vim.api.nvim_create_user_command("PR", function()
 	vim.cmd("DiffviewOpen main")
-	require("bitbucket.requests").get_comments_by_commit()
+	requests.get_comments_by_commit()
 end, {})
