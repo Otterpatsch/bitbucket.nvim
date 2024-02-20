@@ -4,11 +4,7 @@ local utils = require("bitbucket.utils")
 local repo = require("bitbucket.repo")
 local notify = require("notify")
 local bitbucket_api = "https://api.bitbucket.org/2.0/repositories"
-local workspace = repo.workspace
-local reposlug = repo.reposlug
-local username = repo.username
-local app_password = repo.app_password
-local base_request_url = bitbucket_api .. "/" .. workspace .. "/" .. reposlug .. "/"
+local base_request_url = bitbucket_api .. "/" .. repo.workspace .. "/" .. repo.reposlug .. "/"
 
 function M.get_pull_requests()
 	-- get list of pull requests of PR
@@ -38,7 +34,7 @@ function M.get_pullrequest_by_commit(commithash)
 	local request_url = base_request_url .. "commit/" .. commit .. "/pullrequests"
 	local response = curl.get(request_url, {
 		accept = "application/json",
-		auth = username .. ":" .. app_password,
+		auth = repo.username .. ":" .. repo.app_password,
 	})
 	if response.status ~= 200 then
 		error("Failed " .. tostring(response.status) .. " " .. request_url)
