@@ -202,4 +202,18 @@ function M.update_comment(comment_id, pr_id, new_text)
 	return response
 end
 
+---Send a DEL request to del the comment with the given id
+---@param comment_id string: comment id to update
+---@param pr_id string: pr id to which the comment belong
+---@return table: the response from the api call
+function M.delete_comment(comment_id, pr_id)
+	comment_id = tostring(comment_id)
+	pr_id = tostring(pr_id)
+	local request_url = base_request_url .. "pullrequests/" .. pr_id .. "/comments/" .. comment_id
+	local response = curl.delete(request_url, {
+		auth = repo.username .. ":" .. repo.app_password,
+	})
+	return response
+end
+
 return M
