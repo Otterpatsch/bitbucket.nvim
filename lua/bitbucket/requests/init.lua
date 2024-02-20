@@ -16,7 +16,7 @@ end
 ---Calls the responding function to present the comments summary
 ---view for a pull request which contains the given commithash
 ---If no commithash is given then the current one is taken
----@param commithash string: commit hash (optional)
+---@param commithash string or nil: commit hash (optional)
 ---@return NuiTree: table which contains all the comments as nodes
 function M.get_comments_by_commit(commithash)
 	PR_ID = M.get_pullrequest_by_commit(commithash)
