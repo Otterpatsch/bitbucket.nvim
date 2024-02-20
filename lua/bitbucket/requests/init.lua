@@ -89,13 +89,13 @@ end
 ---Creates and mount a popup to edit a comment
 ---@param comment_id string: the id of the comment which should be edited
 ---@param old_text table: a table which contains lines by string
-function M.comment_update_popup(comment_id, old_text)
+function M.update_popup(comment_id, old_text)
 	local popup = utils.create_popup("Update Comment")
 	vim.api.nvim_buf_set_lines(popup.bufnr, 0, #old_text, false, old_text)
 	popup:map("n", "<leader><CR>", function()
 		local choice = vim.fn.confirm("Send comment?", "&Yes\n&No\n&Quit")
 		if choice == 1 then
-			local response = M.request_to_update_comment(
+			local response = M.update_comment(
 				comment_id,
 				PR_ID,
 				vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
@@ -119,12 +119,12 @@ end
 
 ---Creates and mount a popup to edit a comment
 ---@param parent_id string: the id of the comment which should be edited
-function M.comment_creation_popup(parent_id)
+function M.new_comment_popup(parent_id)
 	local popup = utils.create_popup("Create Comment")
 	popup:map("n", "<leader><CR>", function()
 		local choice = vim.fn.confirm("Send comment?", "&Yes\n&No\n&Quit")
 		if choice == 1 then
-			local response = M.request_to_post_comment(
+			local response = M.new_comment(
 				parent_id,
 				PR_ID,
 				vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
@@ -151,7 +151,7 @@ end
 ---@param pr_id string: pr id to which the comment belong
 ---@param new_text string or table: the updated text
 ---@return table: the response from the api call
-function M.request_to_post_comment(parent_id, pr_id, new_text)
+function M.new_comment(parent_id, pr_id, new_text)
 	if type(new_text) == "table" then
 		new_text = table.concat(new_text, "\n")
 	end
@@ -177,7 +177,7 @@ end
 ---@param pr_id string: pr id to which the comment belong
 ---@param new_text string or table: the updated text
 ---@return table: the response from the api call
-function M.request_to_update_comment(comment_id, pr_id, new_text)
+function M.update_comment(comment_id, pr_id, new_text)
 	comment_id = tostring(comment_id)
 	pr_id = tostring(pr_id)
 	if type(new_text) == "table" then
