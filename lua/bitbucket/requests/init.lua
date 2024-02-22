@@ -69,12 +69,13 @@ function M.request_comments_table(pr_id)
 		content = vim.fn.json_decode(response.body)
 		values = utils.concate_tables(values, content["values"])
 	end
-	for index, value in ipairs(values) do
-		if value["deleted"] then
-			table.remove(values, index)
+  local valid_comments = {}
+	for _, value in ipairs(values) do
+		if not value.deleted then
+			table.insert(valid_comments, value)
 		end
 	end
-	return values
+	return valid_comments
 end
 
 function M.create_pullrequest()
