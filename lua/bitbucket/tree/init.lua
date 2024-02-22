@@ -3,6 +3,25 @@ local Line = require("nui.line")
 local Text = require("nui.text")
 local M = {}
 
+local function get_inline_info(inline)
+	if not inline then
+		return false
+	end
+	return {
+		file = inline["path"],
+		from = inline["from"],
+		to = inline["to"],
+	}
+end
+
+local function extract_date(datetime)
+	return string.sub(datetime, 1, 10)
+end
+
+local function extract_time(datetime)
+	return string.sub(datetime, 12, 16)
+end
+
 function M.add_node_to_tree(id, sometree, nodes)
 	if sometree:get_node(id) then
 		return
@@ -35,19 +54,11 @@ function M.values_to_nodes(values)
 			parent_id = parent_id,
 			date = value["created_on"],
 			lastchild = false,
-			inline = M.get_inline_info(inline),
+			inline = get_inline_info(inline),
 		}, {})
 		node_by_id[id] = node
 	end
 	return node_by_id
-end
-
-function M.extract_date(datetime)
-	return string.sub(datetime, 1, 10)
-end
-
-function M.extract_time(datetime)
-	return string.sub(datetime, 12, 16)
 end
 
 function M.node_visualize(node, parent_node)
@@ -65,9 +76,9 @@ function M.node_visualize(node, parent_node)
 	local header_text = " "
 		.. node.author
 		.. " at "
-		.. M.extract_time(datetime)
+		.. extract_time(datetime)
 		.. " on "
-		.. M.extract_date(datetime)
+		.. extract_date(datetime)
 		.. " "
 	header_text = header_text .. string.rep("─", line_length - string.len(header_text) - node:get_depth())
 	if node:is_expanded() then
@@ -111,17 +122,6 @@ function M.node_visualize(node, parent_node)
 			}
 		end
 	end
-end
-
-function M.get_inline_info(inline)
-	if not inline then
-		return false
-	end
-	return {
-		file = inline["path"],
-		from = inline["from"],
-		to = inline["to"],
-	}
 end
 
 return M
