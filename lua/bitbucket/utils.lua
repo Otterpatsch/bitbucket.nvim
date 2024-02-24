@@ -1,8 +1,8 @@
 local NuiSplit = require("nui.split")
 local NuiTree = require("nui.tree")
 local Popup = require("nui.popup")
-local tree_utils = require("bitbucket.tree")
-local mapping = require("bitbucket.tree.mapping")
+local tree_utils = require("bitbucket.comments.tree")
+local mapping = require("bitbucket.comments.mapping")
 local notify = require("notify")
 local M = {}
 

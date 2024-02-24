@@ -103,7 +103,7 @@ function M.jump(file_name, new_line, old_line)
 	vim.cmd("DiffviewFocusFiles")
 	local view = diffview_lib.get_current_view()
 	if view == nil then
-		utils.notify("Could not find Diffview view", vim.log.levels.ERROR)
+		notify("Could not find Diffview view", vim.log.levels.ERROR)
 		return
 	end
 	local files = view.panel:ordered_file_list()
@@ -111,7 +111,7 @@ function M.jump(file_name, new_line, old_line)
 	for _, file in ipairs(files) do
 		if file.path == file_name then
 			if not async_ok then
-				utils.notify("Could not load Diffview async", vim.log.levels.ERROR)
+				notify("Could not load Diffview async", vim.log.levels.ERROR)
 				return
 			end
 			async.await(view:set_file(file))
