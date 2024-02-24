@@ -22,6 +22,19 @@ local function extract_time(datetime)
 	return string.sub(datetime, 12, 16)
 end
 
+local function create_node(text, author, id, parent_id, date, lastchild, inline)
+	local node = NuiTree.Node({
+		text = text,
+		author = author,
+		id = id,
+		parent_id = parent_id,
+		date = date,
+		lastchild = lastchild,
+		inline = inline,
+	}, {})
+	return node
+end
+
 function M.add_node_to_tree(id, sometree, nodes)
 	if sometree:get_node(id) then
 		return
@@ -46,17 +59,8 @@ function M.values_to_nodes(values)
 		local author = value["user"]["display_name"]
 		local id = tostring(value["id"]) -- id needs to be string
 		local parent_id = value["parent"] and tostring(value["parent"]["id"]) -- id needs to be string
-		local inline = value["inline"]
-		local node = NuiTree.Node({
-			text = text,
-			author = author,
-			id = id,
-			parent_id = parent_id,
-			date = value["created_on"],
-			lastchild = false,
-			inline = get_inline_info(inline),
-		}, {})
-		node_by_id[id] = node
+		local inline = get_inline_info(value["inline"])
+		node_by_id[id] = create_node(text, author, id, parent_id, value["created_on"], false, inline)
 	end
 	return node_by_id
 end
