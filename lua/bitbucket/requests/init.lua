@@ -2,7 +2,6 @@ local M = {}
 local curl = require("plenary").curl
 local utils = require("bitbucket.utils")
 local repo = require("bitbucket.repo")
-local notify = require("notify")
 local bitbucket_api = "https://api.bitbucket.org/2.0/repositories"
 local base_request_url = bitbucket_api .. "/" .. repo.workspace .. "/" .. repo.reposlug .. "/"
 
@@ -69,7 +68,7 @@ function M.request_comments_table(pr_id)
 		content = vim.fn.json_decode(response.body)
 		values = utils.concate_tables(values, content["values"])
 	end
-  local valid_comments = {}
+	local valid_comments = {}
 	for _, value in ipairs(values) do
 		if not value.deleted then
 			table.insert(valid_comments, value)
@@ -99,9 +98,9 @@ function M.update_popup(comment_id, old_text)
 				vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
 			)
 			if response.status ~= 200 then
-				notify(response.body, "error")
+				utils.notify(response.body, "error")
 			elseif response.status == 200 then
-				notify("Success", "Info")
+				utils.notify("Success", "Info")
 				-- TODO
 				--   have global tree
 				--   update node.text
@@ -128,9 +127,9 @@ function M.new_comment_popup(parent_id)
 				vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
 			)
 			if response.status ~= 201 then
-				notify(response.body, "error")
+				utils.notify(response.body, "error")
 			elseif response.status == 201 then
-				notify("Success", "Info")
+				utils.notify("Success", "Info")
 				vim.api.nvim_buf_delete(popup.bufnr, {})
 			end
 		-- TODO update node itself on success

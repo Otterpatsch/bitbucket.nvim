@@ -3,6 +3,7 @@ local NuiTree = require("nui.tree")
 local Popup = require("nui.popup")
 local tree_utils = require("bitbucket.tree")
 local mapping = require("bitbucket.tree.mapping")
+local notify = require("notify")
 local M = {}
 
 function M.create_popup(titel, width, height)
