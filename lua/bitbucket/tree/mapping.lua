@@ -1,3 +1,6 @@
+local async_ok, async = pcall(require, "diffview.async")
+local notify = require("notify")
+local diffview_lib = require("diffview.lib")
 local M = {}
 
 function M.expand_tree(tree)
@@ -81,6 +84,47 @@ function M.add_keymap_actions(comment_split, tree)
 			require("bitbucket.requests.init").delete_comment(node.id, PR_ID)
 		end
 	end)
+
+	comment_split:map("n", "<leader>j", function()
+		local node = tree:get_node()
+		if not node.inline then
+			return
+		end
+		M.jump(node.inline.file, node.inline.to, node.inline.from)
+	end)
+end
+
+function M.jump(file_name, new_line, old_line)
+	if M.tabnr == nil then
+		utils.notify("Can't jump to Diffvew. Is it open?", vim.log.levels.ERROR)
+		return
+	end
+	vim.api.nvim_set_current_tabpage(M.tabnr)
+	vim.cmd("DiffviewFocusFiles")
+	local view = diffview_lib.get_current_view()
+	if view == nil then
+		utils.notify("Could not find Diffview view", vim.log.levels.ERROR)
+		return
+	end
+	local files = view.panel:ordered_file_list()
+	local layout = view.cur_layout
+	for _, file in ipairs(files) do
+		if file.path == file_name then
+			if not async_ok then
+				utils.notify("Could not load Diffview async", vim.log.levels.ERROR)
+				return
+			end
+			async.await(view:set_file(file))
+			if new_line ~= nil then
+				layout.b:focus()
+				vim.api.nvim_win_set_cursor(0, { tonumber(new_line), 0 })
+			elseif old_line ~= nil then
+				layout.a:focus()
+				vim.api.nvim_win_set_cursor(0, { tonumber(old_line), 0 })
+			end
+			break
+		end
+	end
 end
 
 return M
