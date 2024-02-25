@@ -100,7 +100,7 @@ end
 
 function M.jump(file_name, new_line, old_line)
 	if M.tabnr == nil then
-		utils.notify("Can't jump to Diffvew. Is it open?", vim.log.levels.ERROR)
+		notify("Can't jump to Diffvew. Is it open?", vim.log.levels.ERROR)
 		return
 	end
 	vim.api.nvim_set_current_tabpage(M.tabnr)
