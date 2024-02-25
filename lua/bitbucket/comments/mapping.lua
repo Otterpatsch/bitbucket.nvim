@@ -98,6 +98,11 @@ function M.add_keymap_actions(comment_split, tree)
 	end)
 end
 
+---Jump to the diff at the comments location
+---Heavily inspired by gitlab.nvim's jump function
+---@param file_path string: relative path to the file
+---@param updated_line number or vim.NIL: if on new line the line number
+---@param old_line number or vim.NIL: if on old line the line number
 function M.jump_to_diff(file_path, updated_line, old_line)
 	if M.tabnr == nil then
 		notify("Can't jump to Diffvew. Is it open?", vim.log.levels.ERROR)
