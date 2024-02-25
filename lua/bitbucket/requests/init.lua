@@ -20,9 +20,18 @@ end
 ---@param commithash string or nil: commit hash (optional)
 ---@return NuiTree: table which contains all the comments as nodes
 function M.get_comments_by_commit(commithash)
-	PR_ID = M.get_pullrequest_by_commit(commithash)
-	PR_Comments = M.request_comments_table(PR_ID)
-	utils.comments_view(PR_Comments)
+	if repo.pr_id == nil then
+		repo.pr_id = M.get_pullrequest_by_commit(commithash)
+	end
+	if repo.comments == nil then
+		repo.comments = M.request_comments_table(repo.pr_id)
+	end
+	---check if return of request_comments_table is not the same as current comments if so
+	if repo.comment_view ~= nil then
+		repo.comment_view:unmount()
+	end
+	repo.comment_view = utils.comments_view(repo.comments)
+	repo.comment_view:mount()
 end
 
 ---Send a request to receive the Pull request id by a commithash
@@ -52,7 +61,7 @@ end
 ---@param pr_id string: the pull request id
 ---@return table: a table containing all the comments of a PR
 function M.request_comments_table(pr_id)
-	pr_id = pr_id or PR_ID
+	pr_id = pr_id or repo.pr_id
 	local request_url = base_request_url .. "/pullrequests/" .. pr_id .. "/comments"
 	local response = curl.get(request_url, {
 		accept = "application/json",
@@ -88,7 +97,7 @@ function M.update_popup(comment_id, old_text)
 		local choice = vim.fn.confirm("Update comment?", "&Yes\n&No\n&Quit")
 		if choice == 1 then
 			new_text = vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
-			local response = M.update_comment(comment_id, PR_ID, new_text)
+			local response = M.update_comment(comment_id, repo.pr_id, new_text)
 			if response.status ~= 200 then
 				notify(response.body, "error")
 			elseif response.status == 200 then
@@ -144,7 +153,7 @@ end
 function M.delete_comment_popup(node_id)
 	local choice = vim.fn.confirm("Delete comment?", "&Yes\n&No")
 	if choice == 1 then
-		local response = M.delete_comment(node_id, PR_ID)
+		local response = M.delete_comment(node_id, repo.pr_id)
 		if response.status == 204 then
 			tree.comment_tree:remove_node(node_id)
 			tree.comment_tree:render()
