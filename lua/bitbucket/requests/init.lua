@@ -30,7 +30,7 @@ function M.get_comments_by_commit(commithash)
 	if repo.comment_view ~= nil then
 		repo.comment_view:unmount()
 	end
-	repo.comment_view = utils.comments_view(repo.comments)
+	repo.comment_view = tree.comments_view(repo.comments)
 	repo.comment_view:mount()
 end
 

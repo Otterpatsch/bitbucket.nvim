@@ -1,9 +1,4 @@
-local NuiSplit = require("nui.split")
-local NuiTree = require("nui.tree")
 local Popup = require("nui.popup")
-local tree_utils = require("bitbucket.comments.tree")
-local mapping = require("bitbucket.comments.mapping")
-local repo = require("bitbucket.repo")
 local M = {}
 
 function M.create_popup(titel, width, height)
@@ -24,41 +19,6 @@ function M.create_popup(titel, width, height)
 			},
 		},
 	})
-end
-
----Function which visualize the overall Pull Request Comments
----@param values table: a table containing all the non removed comments of a Pull Request
----@return NuiTree: tree which contains all the comment nodes
-function M.comments_view(values)
-	local comment_split = NuiSplit({
-		ns_id = "comments",
-		relative = "editor",
-		position = "bottom",
-		size = "35%",
-	})
-
-	local node_by_id = tree_utils.values_to_nodes(values)
-
-	repo.comment_tree = NuiTree({
-		bufnr = comment_split.bufnr,
-		get_node_id = function(node)
-			-- this is telling NuiTree where we're storing the id
-			return node.id
-		end,
-		prepare_node = function(node)
-			local parent_node = node_by_id[node:get_parent_id()]
-			return tree_utils.node_visualize(node, parent_node)
-		end,
-	})
-
-	for id in pairs(node_by_id) do
-		tree_utils.add_node_to_tree(id, node_by_id)
-	end
-	mapping.add_keymap_actions(comment_split, repo.comment_tree)
-
-	repo.comment_tree:render()
-	mapping.expand_tree(repo.comment_tree)
-	return comment_split
 end
 
 function M.dump(o)

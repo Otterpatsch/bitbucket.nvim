@@ -1,7 +1,9 @@
 local NuiTree = require("nui.tree")
+local NuiSplit = require("nui.split")
 local Line = require("nui.line")
 local Text = require("nui.text")
 local repo = require("bitbucket.repo")
+local mapping = require("bitbucket.comments.mapping")
 local M = {}
 
 function M.get_inline_info(inline)
@@ -21,6 +23,41 @@ end
 
 local function extract_time(datetime)
 	return string.sub(datetime, 12, 16)
+end
+
+---Function which visualize the overall Pull Request Comments
+---@param values table: a table containing all the non removed comments of a Pull Request
+---@return NuiTree: tree which contains all the comment nodes
+function M.comments_view(values)
+	local comment_split = NuiSplit({
+		ns_id = "comments",
+		relative = "editor",
+		position = "bottom",
+		size = "35%",
+	})
+
+	local node_by_id = M.values_to_nodes(values)
+
+	repo.comment_tree = NuiTree({
+		bufnr = comment_split.bufnr,
+		get_node_id = function(node)
+			-- this is telling NuiTree where we're storing the id
+			return node.id
+		end,
+		prepare_node = function(node)
+			local parent_node = node_by_id[node:get_parent_id()]
+			return M.node_visualize(node, parent_node)
+		end,
+	})
+
+	for id in pairs(node_by_id) do
+		M.add_node_to_tree(id, node_by_id)
+	end
+	mapping.add_keymap_actions(comment_split, repo.comment_tree)
+
+	repo.comment_tree:render()
+	mapping.expand_tree(repo.comment_tree)
+	return comment_split
 end
 
 function M.create_node(comment_content, lastchild) --text, author, id, parent_id, date, lastchild, inline, deleted)
