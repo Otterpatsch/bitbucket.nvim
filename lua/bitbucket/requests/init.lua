@@ -135,6 +135,22 @@ function M.new_comment_popup(parent_id)
 	popup:mount()
 end
 
+function M.delete_comment_popup(node_id)
+	local choice = vim.fn.confirm("Delete comment?", "&Yes\n&No")
+	if choice == 1 then
+		local response = M.delete_comment(node_id, PR_ID)
+		if response.status == 204 then
+			tree.comment_tree:remove_node(node_id)
+			tree.comment_tree:render()
+			notify("Comment deleted")
+		else
+			notify(response.body, "error")
+		end
+	else
+		return
+	end
+end
+
 ---Send a post request to create the comment with the given text
 ---@param parent_id string or nil: parent id
 ---@param pr_id string nil: pr id to which the comment belong

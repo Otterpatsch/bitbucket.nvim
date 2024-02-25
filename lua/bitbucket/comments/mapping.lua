@@ -87,10 +87,7 @@ function M.add_keymap_actions(comment_split, tree)
 			vim.fn.confirm("Can not delete a comment with sub comments.", "&Ok")
 			return
 		end
-		local choice = vim.fn.confirm("Delete comment?", "&Yes\n&No")
-		if choice == 1 then
-			require("bitbucket.requests.init").delete_comment(node.id, PR_ID)
-		end
+		require("bitbucket.requests.init").delete_comment_popup(node.id)
 	end)
 
 	--- jump to diff line ---
