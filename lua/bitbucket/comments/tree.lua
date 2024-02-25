@@ -36,6 +36,20 @@ local function create_node(text, author, id, parent_id, date, lastchild, inline,
 	return node
 end
 
+local function add_parent_node(node, sometree, nodes)
+	local parent_id = node.parent_id
+	if parent_id and not sometree:get_node(parent_id) then
+		local parent_node = nodes[parent_id]
+		if parent_node.deleted then
+			parent_node.text = "Deleted Comment."
+		end
+		add_parent_node(parent_node, sometree, nodes)
+	end
+	if not sometree:get_node(node.id) then
+		sometree:add_node(node, parent_id)
+	end
+end
+
 function M.add_node_to_tree(id, sometree, nodes)
 	if sometree:get_node(id) then
 		return
@@ -48,13 +62,10 @@ function M.add_node_to_tree(id, sometree, nodes)
 
 	local parent_id = node.parent_id
 	if parent_id and not sometree:get_node(parent_id) then
-		local parent_node = nodes[parent_id]
-		if parent_node.deleted then
-			parent_node.text = "Deleted Comment."
-		end
-		sometree:add_node(parent_node, parent_node.parent_id)
+		add_parent_node(node, sometree, nodes)
+	else
+		sometree:add_node(node, parent_id)
 	end
-	sometree:add_node(node, parent_id)
 end
 
 function M.values_to_nodes(values)
