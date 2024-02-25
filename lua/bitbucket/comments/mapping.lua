@@ -94,11 +94,11 @@ function M.add_keymap_actions(comment_split, tree)
 		if not node.inline then
 			return
 		end
-		M.jump(node.inline.file, node.inline.to, node.inline.from)
+		M.jump_to_diff(node.inline.file, node.inline.to, node.inline.from)
 	end)
 end
 
-function M.jump(file_name, new_line, old_line)
+function M.jump_to_diff(file_path, updated_line, old_line)
 	if M.tabnr == nil then
 		notify("Can't jump to Diffvew. Is it open?", vim.log.levels.ERROR)
 		return
@@ -113,15 +113,15 @@ function M.jump(file_name, new_line, old_line)
 	local files = view.panel:ordered_file_list()
 	local layout = view.cur_layout
 	for _, file in ipairs(files) do
-		if file.path == file_name then
+		if file.path == file_path then
 			if not async_ok then
 				notify("Could not load Diffview async", vim.log.levels.ERROR)
 				return
 			end
 			async.await(view:set_file(file))
-			if new_line ~= vim.NIL then
+			if updated_line ~= vim.NIL then
 				layout.b:focus()
-				vim.api.nvim_win_set_cursor(0, { tonumber(new_line), 0 })
+				vim.api.nvim_win_set_cursor(0, { tonumber(updated_line), 0 })
 			elseif old_line ~= vim.NIL then
 				layout.a:focus()
 				vim.api.nvim_win_set_cursor(0, { tonumber(old_line), 0 })
