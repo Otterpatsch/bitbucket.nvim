@@ -119,10 +119,10 @@ function M.jump(file_name, new_line, old_line)
 				return
 			end
 			async.await(view:set_file(file))
-			if new_line ~= nil then
+			if new_line ~= vim.NIL then
 				layout.b:focus()
 				vim.api.nvim_win_set_cursor(0, { tonumber(new_line), 0 })
-			elseif old_line ~= nil then
+			elseif old_line ~= vim.NIL then
 				layout.a:focus()
 				vim.api.nvim_win_set_cursor(0, { tonumber(old_line), 0 })
 			end
