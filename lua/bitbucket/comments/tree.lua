@@ -1,7 +1,7 @@
 local NuiTree = require("nui.tree")
 local Line = require("nui.line")
 local Text = require("nui.text")
-local M = {}
+local M = { comment_tree = nil }
 
 local function get_inline_info(inline)
 	if not inline then
@@ -36,22 +36,22 @@ local function create_node(text, author, id, parent_id, date, lastchild, inline,
 	return node
 end
 
-local function add_parent_node(node, sometree, nodes)
+local function add_parent_node(node, nodes)
 	local parent_id = node.parent_id
-	if parent_id and not sometree:get_node(parent_id) then
+	if parent_id and not M.comment_tree:get_node(parent_id) then
 		local parent_node = nodes[parent_id]
 		if parent_node.deleted then
 			parent_node.text = "Deleted Comment."
 		end
-		add_parent_node(parent_node, sometree, nodes)
+		add_parent_node(parent_node, nodes)
 	end
-	if not sometree:get_node(node.id) then
-		sometree:add_node(node, parent_id)
+	if not M.comment_tree:get_node(node.id) then
+		M.comment_tree:add_node(node, parent_id)
 	end
 end
 
-function M.add_node_to_tree(id, sometree, nodes)
-	if sometree:get_node(id) then
+function M.add_node_to_tree(id, nodes)
+	if M.comment_tree:get_node(id) then
 		return
 	end
 
@@ -61,10 +61,10 @@ function M.add_node_to_tree(id, sometree, nodes)
 	end
 
 	local parent_id = node.parent_id
-	if parent_id and not sometree:get_node(parent_id) then
-		add_parent_node(node, sometree, nodes)
+	if parent_id and not M.comment_tree:get_node(parent_id) then
+		add_parent_node(node, nodes)
 	else
-		sometree:add_node(node, parent_id)
+		M.comment_tree:add_node(node, parent_id)
 	end
 end
 

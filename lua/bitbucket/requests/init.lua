@@ -20,8 +20,7 @@ end
 function M.get_comments_by_commit(commithash)
 	PR_ID = M.get_pullrequest_by_commit(commithash)
 	PR_Comments = M.request_comments_table(PR_ID)
-	CommentTree = utils.comments_view(PR_Comments)
-	return CommentTree
+	utils.comments_view(PR_Comments)
 end
 
 ---Send a request to receive the Pull request id by a commithash
