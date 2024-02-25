@@ -122,12 +122,18 @@ function M.new_comment_popup(parent_id)
 				notify(response.body, "error")
 			elseif response.status == 201 then
 				notify("Success", "Info")
+				local response_body = vim.fn.json_decode(response.body)
+				local text = response_body["content"]["raw"]
+				local author = response_body["user"]["display_name"]
+				local id = tostring(response_body["id"]) -- id needs to be string
+				local inline = tree.get_inline_info(response_body["inline"])
+				local deleted = response_body["deleted"]
+				local node =
+					tree.create_node(text, author, id, parent_id, response_body["created_on"], false, inline, deleted)
+				tree.comment_tree:add_node(node, parent_id)
+				tree.comment_tree:render()
 				vim.api.nvim_buf_delete(popup.bufnr, {})
 			end
-		-- TODO update node itself on success
-		-- have global tree
-		-- update node.text
-		-- rerender tree
 		elseif choice == 3 then
 			vim.api.nvim_buf_delete(popup.bufnr, {})
 		end

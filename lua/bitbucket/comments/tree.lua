@@ -3,7 +3,7 @@ local Line = require("nui.line")
 local Text = require("nui.text")
 local M = { comment_tree = nil }
 
-local function get_inline_info(inline)
+function M.get_inline_info(inline)
 	if not inline then
 		return false
 	end
@@ -22,7 +22,7 @@ local function extract_time(datetime)
 	return string.sub(datetime, 12, 16)
 end
 
-local function create_node(text, author, id, parent_id, date, lastchild, inline, deleted)
+function M.create_node(text, author, id, parent_id, date, lastchild, inline, deleted)
 	local node = NuiTree.Node({
 		text = text,
 		author = author,
@@ -75,9 +75,9 @@ function M.values_to_nodes(values)
 		local author = value["user"]["display_name"]
 		local id = tostring(value["id"]) -- id needs to be string
 		local parent_id = value["parent"] and tostring(value["parent"]["id"]) -- id needs to be string
-		local inline = get_inline_info(value["inline"])
+		local inline = M.get_inline_info(value["inline"])
 		local deleted = value["deleted"]
-		node_by_id[id] = create_node(text, author, id, parent_id, value["created_on"], false, inline, deleted)
+		node_by_id[id] = M.create_node(text, author, id, parent_id, value["created_on"], false, inline, deleted)
 	end
 	return node_by_id
 end
