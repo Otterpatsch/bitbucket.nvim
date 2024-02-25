@@ -78,6 +78,9 @@ function M.request_comments_table(pr_id)
 		content = vim.fn.json_decode(response.body)
 		values = utils.concate_tables(values, content["values"])
 	end
+	for _, value in ipairs(values) do
+		value["timestemp"] = utils.convert_date_string_to_timestamp(value["created_on"])
+	end
 	return values
 end
 
@@ -124,7 +127,7 @@ function M.new_comment_popup(parent_id)
 		if choice == 1 then
 			local response = M.new_comment(
 				parent_id,
-				PR_ID,
+				repo.pr_id,
 				vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
 			)
 			if response.status ~= 201 then
@@ -132,13 +135,7 @@ function M.new_comment_popup(parent_id)
 			elseif response.status == 201 then
 				notify("Success", "Info")
 				local response_body = vim.fn.json_decode(response.body)
-				local text = response_body["content"]["raw"]
-				local author = response_body["user"]["display_name"]
-				local id = tostring(response_body["id"]) -- id needs to be string
-				local inline = tree.get_inline_info(response_body["inline"])
-				local deleted = response_body["deleted"]
-				local node =
-					tree.create_node(text, author, id, parent_id, response_body["created_on"], false, inline, deleted)
+				local node = tree.create_node(response_body, false)
 				repo.comment_tree:add_node(node, parent_id)
 				repo.comment_tree:render()
 				vim.api.nvim_buf_delete(popup.bufnr, {})

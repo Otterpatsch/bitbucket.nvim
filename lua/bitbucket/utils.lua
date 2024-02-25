@@ -95,4 +95,12 @@ function M.concate_tables(first, second)
 	return first
 end
 
+---Return os.time from a given ISO 8601 date string.
+---@param date string ISO 8601 formatted date string
+---@return integer os.time
+M.convert_date_string_to_timestamp = function(date)
+	local year, month, day, hour, min, sec = date:match("(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)")
+	return os.time({ year = year, month = month, day = day, hour = hour, min = min, sec = sec })
+end
+
 return M
