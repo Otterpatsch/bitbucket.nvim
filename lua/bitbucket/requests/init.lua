@@ -1,7 +1,9 @@
 local M = {}
 local curl = require("plenary").curl
+local notify = require("notify")
 local utils = require("bitbucket.utils")
 local repo = require("bitbucket.repo")
+local tree = require("bitbucket.comments.tree")
 local bitbucket_api = "https://api.bitbucket.org/2.0/repositories"
 local base_request_url = bitbucket_api .. "/" .. repo.workspace .. "/" .. repo.reposlug .. "/"
 
@@ -85,19 +87,16 @@ function M.update_popup(comment_id, old_text)
 	popup:map("n", "<leader><CR>", function()
 		local choice = vim.fn.confirm("Update comment?", "&Yes\n&No\n&Quit")
 		if choice == 1 then
-			local response = M.update_comment(
-				comment_id,
-				PR_ID,
-				vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
-			)
+			new_text = vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
+			local response = M.update_comment(comment_id, PR_ID, new_text)
 			if response.status ~= 200 then
-				utils.notify(response.body, "error")
+				notify(response.body, "error")
 			elseif response.status == 200 then
-				utils.notify("Success", "Info")
-				-- TODO
-				--   have global tree
-				--   update node.text
-				--   rerender tree
+				notify("Success", "Info")
+				local respone_body = vim.fn.json_decode(response.body)
+				local node = tree.comment_tree:get_node(comment_id)
+				node.text = respone_body["content"]["raw"]
+				tree.comment_tree:render()
 			end
 			vim.api.nvim_buf_delete(popup.bufnr, {})
 		elseif choice == 3 then
@@ -120,9 +119,9 @@ function M.new_comment_popup(parent_id)
 				vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
 			)
 			if response.status ~= 201 then
-				utils.notify(response.body, "error")
+				notify(response.body, "error")
 			elseif response.status == 201 then
-				utils.notify("Success", "Info")
+				notify("Success", "Info")
 				vim.api.nvim_buf_delete(popup.bufnr, {})
 			end
 		-- TODO update node itself on success
