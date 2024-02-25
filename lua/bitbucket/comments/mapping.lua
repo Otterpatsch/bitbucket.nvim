@@ -59,6 +59,7 @@ function M.add_keymap_actions(comment_split, tree)
 	end, map_options)
 	---------------------
 
+	---- update node ---
 	comment_split:map("n", "u", function()
 		local node = tree:get_node()
 		local lines = {}
@@ -68,15 +69,18 @@ function M.add_keymap_actions(comment_split, tree)
 		require("bitbucket.requests.init").update_popup(node.id, lines)
 	end, map_options)
 
+	--- create new comment ----
 	comment_split:map("n", "c", function()
 		require("bitbucket.requests.init").new_comment_popup()
 	end, map_options)
 
+	--- reply to comment ---
 	comment_split:map("n", "r", function()
 		local node = tree:get_node()
 		require("bitbucket.requests.init").new_comment_popup(node.id)
 	end, map_options)
 
+	--- delete comment ---
 	comment_split:map("n", "d", function()
 		local node = tree:get_node()
 		if node:has_children() then
@@ -89,10 +93,11 @@ function M.add_keymap_actions(comment_split, tree)
 		end
 	end)
 
+	--- jump to diff line ---
 	comment_split:map("n", "<leader>j", function()
 		local node = tree:get_node()
 		if not node.inline then
-			return
+			return notify("This comment is not linked to a file/line", "Info")
 		end
 		M.jump_to_diff(node.inline.file, node.inline.to, node.inline.from)
 	end)
