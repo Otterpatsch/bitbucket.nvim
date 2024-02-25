@@ -103,9 +103,9 @@ function M.update_popup(comment_id, old_text)
 			elseif response.status == 200 then
 				notify("Success", "Info")
 				local respone_body = vim.fn.json_decode(response.body)
-				local node = tree.comment_tree:get_node(comment_id)
+				local node = repo.comment_tree:get_node(comment_id)
 				node.text = respone_body["content"]["raw"]
-				tree.comment_tree:render()
+				repo.comment_tree:render()
 			end
 			vim.api.nvim_buf_delete(popup.bufnr, {})
 		elseif choice == 3 then
@@ -139,8 +139,8 @@ function M.new_comment_popup(parent_id)
 				local deleted = response_body["deleted"]
 				local node =
 					tree.create_node(text, author, id, parent_id, response_body["created_on"], false, inline, deleted)
-				tree.comment_tree:add_node(node, parent_id)
-				tree.comment_tree:render()
+				repo.comment_tree:add_node(node, parent_id)
+				repo.comment_tree:render()
 				vim.api.nvim_buf_delete(popup.bufnr, {})
 			end
 		elseif choice == 3 then
@@ -155,8 +155,8 @@ function M.delete_comment_popup(node_id)
 	if choice == 1 then
 		local response = M.delete_comment(node_id, repo.pr_id)
 		if response.status == 204 then
-			tree.comment_tree:remove_node(node_id)
-			tree.comment_tree:render()
+			repo.comment_tree:remove_node(node_id)
+			repo.comment_tree:render()
 			notify("Comment deleted")
 		else
 			notify(response.body, "error")

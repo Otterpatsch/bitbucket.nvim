@@ -3,6 +3,7 @@ local NuiTree = require("nui.tree")
 local Popup = require("nui.popup")
 local tree_utils = require("bitbucket.comments.tree")
 local mapping = require("bitbucket.comments.mapping")
+local repo = require("bitbucket.repo")
 local M = {}
 
 function M.create_popup(titel, width, height)
@@ -38,7 +39,7 @@ function M.comments_view(values)
 
 	local node_by_id = tree_utils.values_to_nodes(values)
 
-	tree_utils.comment_tree = NuiTree({
+	repo.comment_tree = NuiTree({
 		bufnr = comment_split.bufnr,
 		get_node_id = function(node)
 			-- this is telling NuiTree where we're storing the id
@@ -53,10 +54,10 @@ function M.comments_view(values)
 	for id in pairs(node_by_id) do
 		tree_utils.add_node_to_tree(id, node_by_id)
 	end
-	mapping.add_keymap_actions(comment_split, tree_utils.comment_tree)
+	mapping.add_keymap_actions(comment_split, repo.comment_tree)
 
-	tree_utils.comment_tree:render()
-	mapping.expand_tree(tree_utils.comment_tree)
+	repo.comment_tree:render()
+	mapping.expand_tree(repo.comment_tree)
 	return comment_split
 end
 

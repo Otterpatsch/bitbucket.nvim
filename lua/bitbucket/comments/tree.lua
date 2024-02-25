@@ -1,7 +1,8 @@
 local NuiTree = require("nui.tree")
 local Line = require("nui.line")
 local Text = require("nui.text")
-local M = { comment_tree = nil }
+local repo = require("bitbucket.repo")
+local M = {}
 
 function M.get_inline_info(inline)
 	if not inline then
@@ -38,20 +39,20 @@ end
 
 local function add_parent_node(node, nodes)
 	local parent_id = node.parent_id
-	if parent_id and not M.comment_tree:get_node(parent_id) then
+	if parent_id and not repo.comment_tree:get_node(parent_id) then
 		local parent_node = nodes[parent_id]
 		if parent_node.deleted then
 			parent_node.text = "Deleted Comment."
 		end
 		add_parent_node(parent_node, nodes)
 	end
-	if not M.comment_tree:get_node(node.id) then
-		M.comment_tree:add_node(node, parent_id)
+	if not repo.comment_tree:get_node(node.id) then
+		repo.comment_tree:add_node(node, parent_id)
 	end
 end
 
 function M.add_node_to_tree(id, nodes)
-	if M.comment_tree:get_node(id) then
+	if repo.comment_tree:get_node(id) then
 		return
 	end
 
@@ -61,10 +62,10 @@ function M.add_node_to_tree(id, nodes)
 	end
 
 	local parent_id = node.parent_id
-	if parent_id and not M.comment_tree:get_node(parent_id) then
+	if parent_id and not repo.comment_tree:get_node(parent_id) then
 		add_parent_node(node, nodes)
 	else
-		M.comment_tree:add_node(node, parent_id)
+		repo.comment_tree:add_node(node, parent_id)
 	end
 end
 
