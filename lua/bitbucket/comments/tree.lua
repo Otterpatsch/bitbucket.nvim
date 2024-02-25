@@ -22,7 +22,7 @@ local function extract_time(datetime)
 	return string.sub(datetime, 12, 16)
 end
 
-local function create_node(text, author, id, parent_id, date, lastchild, inline)
+local function create_node(text, author, id, parent_id, date, lastchild, inline, deleted)
 	local node = NuiTree.Node({
 		text = text,
 		author = author,
@@ -31,6 +31,7 @@ local function create_node(text, author, id, parent_id, date, lastchild, inline)
 		date = date,
 		lastchild = lastchild,
 		inline = inline,
+		deleted = deleted,
 	}, {})
 	return node
 end
@@ -41,13 +42,17 @@ function M.add_node_to_tree(id, sometree, nodes)
 	end
 
 	local node = nodes[id]
-	if not node then
+	if not node or node.deleted then
 		return
 	end
 
 	local parent_id = node.parent_id
 	if parent_id and not sometree:get_node(parent_id) then
-		M.add_node_to_tree(parent_id, sometree, nodes)
+		local parent_node = nodes[parent_id]
+		if parent_node.deleted then
+			parent_node.text = "Deleted Comment."
+		end
+		sometree:add_node(parent_node, parent_node.parent_id)
 	end
 	sometree:add_node(node, parent_id)
 end
@@ -60,7 +65,8 @@ function M.values_to_nodes(values)
 		local id = tostring(value["id"]) -- id needs to be string
 		local parent_id = value["parent"] and tostring(value["parent"]["id"]) -- id needs to be string
 		local inline = get_inline_info(value["inline"])
-		node_by_id[id] = create_node(text, author, id, parent_id, value["created_on"], false, inline)
+		local deleted = value["deleted"]
+		node_by_id[id] = create_node(text, author, id, parent_id, value["created_on"], false, inline, deleted)
 	end
 	return node_by_id
 end
