@@ -109,8 +109,6 @@ function M.node_visualize(node, parent_node)
 			else
 				table.insert(lines, Line({ Text("├" .. string.rep("─", line_length)) }))
 			end
-		else
-			table.insert(lines, Line({ Text("│") }))
 		end
 		return lines
 	else
