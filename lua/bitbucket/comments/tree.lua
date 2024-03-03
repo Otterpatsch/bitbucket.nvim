@@ -61,7 +61,7 @@ function M.comments_view(values)
 		size = "35%",
 	})
 
-	local node_by_id = M.values_to_nodes(values)
+	local node_by_id, node_ids = M.values_to_nodes(values)
 
 	repo.comment_tree = NuiTree({
 		bufnr = comment_split.bufnr,
@@ -75,7 +75,7 @@ function M.comments_view(values)
 		end,
 	})
 
-	for id in pairs(node_by_id) do
+	for _, id in pairs(node_ids) do
 		M.add_node_to_tree(id, node_by_id)
 	end
 	mapping.add_keymap_actions(comment_split, repo.comment_tree)
@@ -136,11 +136,13 @@ end
 
 function M.values_to_nodes(values)
 	local node_by_id = {}
+  local node_ids = {}
 	for _, value in ipairs(values) do
 		local id = tostring(value["id"]) -- id needs to be string
 		node_by_id[id] = M.create_node(value, false)
+    table.insert(node_ids,id)
 	end
-	return node_by_id
+	return node_by_id, node_ids
 end
 
 function M.node_visualize(node, parent_node)
