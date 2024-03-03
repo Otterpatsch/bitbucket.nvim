@@ -25,6 +25,31 @@ local function extract_time(datetime)
 	return string.sub(datetime, 12, 16)
 end
 
+local function calculate_time_passed(timestemp)
+  local date = os.date("!*t")
+  local now = os.time({
+    year = date.year,
+    month = date.month,
+    day = date.day,
+    hour = date.hour,
+    min = date.min,
+    sec = date.sec,
+  })
+  local diff = now - timestemp
+  if diff < 60 then
+    return tostring(diff) .. " seconds ago"
+  elseif diff < 3600 then
+    return tostring(math.floor(diff / 60)) .. " minute ago"
+  elseif diff < 86400 then
+    return tostring(math.floor(diff / 3600)) .. " hour ago"
+  elseif diff < 2592000 then
+    return tostring(math.floor(diff / 86400)) .. " day ago"
+  else
+    local formatted_date = os.date("%B %e, %Y", timestemp)
+    return tostring(formatted_date)
+  end
+end
+
 ---Function which visualize the overall Pull Request Comments
 ---@param values table: a table containing all the non removed comments of a Pull Request
 ---@return NuiTree: tree which contains all the comment nodes
@@ -128,15 +153,11 @@ function M.node_visualize(node, parent_node)
 	end
 
 	local line = Line()
-	local datetime = node.date
 	local line_length = 80
 	local header_text = " "
 		.. node.author
-		.. " at "
-		.. extract_time(datetime)
-		.. " on "
-		.. extract_date(datetime)
-		.. " "
+    .. " "
+    .. calculate_time_passed(node.timestemp)
 	header_text = header_text .. string.rep("─", line_length - string.len(header_text) - node:get_depth())
 	if node:is_expanded() then
 		if node:get_depth() > 1 then
