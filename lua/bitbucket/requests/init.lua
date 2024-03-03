@@ -78,9 +78,6 @@ function M.request_comments_table(pr_id)
 		content = vim.fn.json_decode(response.body)
 		values = utils.concate_tables(values, content["values"])
 	end
-	for _, value in ipairs(values) do
-		value["timestemp"] = utils.convert_date_string_to_timestamp(value["created_on"])
-	end
 	return values
 end
 

@@ -25,7 +25,16 @@ local function extract_time(datetime)
 	return string.sub(datetime, 12, 16)
 end
 
-local function calculate_time_passed(timestemp)
+---Return os.time from a given ISO 8601 date string.
+---@param date string ISO 8601 formatted date string
+---@return integer os.time
+local function convert_date_string_to_timestamp (date)
+  local year, month, day, hour, min, sec = date:match("(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)")
+  return os.time({ year = year, month = month, day = day, hour = hour, min = min, sec = sec })
+end
+
+local function calculate_time_passed(comment_date)
+  local timestemp = convert_date_string_to_timestamp(comment_date)
   local date = os.date("!*t")
   local now = os.time({
     year = date.year,
@@ -78,6 +87,7 @@ function M.comments_view(values)
 	for _, id in pairs(node_ids) do
 		M.add_node_to_tree(id, node_by_id)
 	end
+
 	mapping.add_keymap_actions(comment_split, repo.comment_tree)
 
 	repo.comment_tree:render()
@@ -97,7 +107,6 @@ function M.create_node(comment_content, lastchild) --text, author, id, parent_id
 		lastchild = lastchild,
 		inline = inline,
 		deleted = comment_content["deleted"],
-		timestemp = comment_content["timestemp"],
 	}, {})
 	return node
 end
@@ -159,7 +168,7 @@ function M.node_visualize(node, parent_node)
 	local header_text = " "
 		.. node.author
     .. " "
-    .. calculate_time_passed(node.timestemp)
+    .. calculate_time_passed(node.date)
 	header_text = header_text .. string.rep("─", line_length - string.len(header_text) - node:get_depth())
 	if node:is_expanded() then
 		if node:get_depth() > 1 then
