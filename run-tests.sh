@@ -4,4 +4,5 @@
 XDG_CONFIG_HOME=$(pwd)/.test-config
 export XDG_CONFIG_HOME
 
+source .secrets
 nvim --headless -c "PlenaryBustedDirectory tests/bitbucket/"
