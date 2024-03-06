@@ -78,7 +78,7 @@ function M.request_comments_table(pr_id)
 		content = vim.fn.json_decode(response.body)
 		values = utils.concate_tables(values, content["values"])
 	end
-	return values
+	return values, response.status
 end
 
 function M.create_pullrequest()
