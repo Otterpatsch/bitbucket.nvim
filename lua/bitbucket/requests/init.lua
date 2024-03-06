@@ -132,6 +132,7 @@ function M.handle_request_new_comment(bufnr, parent_id)
 		repo.comment_tree:add_node(node, parent_id)
 		repo.comment_tree:render()
 		vim.api.nvim_buf_delete(bufnr, {})
+		return node.id
 	end
 end
 
