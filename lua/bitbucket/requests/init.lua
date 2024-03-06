@@ -168,9 +168,7 @@ end
 ---@param new_text string or table: the updated text
 ---@return table: the response from the api call
 function M.new_comment(parent_id, pr_id, new_text)
-	if type(new_text) == "table" then
-		new_text = table.concat(new_text, "\n")
-	end
+	new_text = utils.lines_to_raw_text(new_text)
 	local request_url = base_request_url .. "pullrequests/" .. pr_id .. "/comments"
 	local data = nil
 
@@ -209,9 +207,7 @@ end
 function M.update_comment(comment_id, pr_id, new_text)
 	comment_id = tostring(comment_id)
 	pr_id = tostring(pr_id)
-	if type(new_text) == "table" then
-		new_text = table.concat(new_text, "\n")
-	end
+	new_text = utils.lines_to_raw_text(new_text)
 	local request_url = base_request_url .. "pullrequests/" .. pr_id .. "/comments/" .. comment_id
 	local data = vim.fn.json_encode({
 		content = {
