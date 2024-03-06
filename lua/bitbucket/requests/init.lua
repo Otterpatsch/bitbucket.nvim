@@ -51,7 +51,7 @@ function M.get_pullrequest_by_commit(commithash)
 		-- Then popup to choose PR
 		error("two elements: handling yet not implemented")
 	else
-		return tostring(decoded_result["values"][1]["id"])
+		return tostring(decoded_result["values"][1]["id"]), response.status
 	end
 end
 
