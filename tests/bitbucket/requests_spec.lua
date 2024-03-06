@@ -19,7 +19,7 @@ describe("api comments", function()
 	it("update comment", function()
 		local text = { "First Line", "Third Line" }
 		assert.are.same("string", type(comment_id))
-		local response = requests.update_comment(comment_id, 1, text)
+		local response = requests.send_request_to_update_comment(comment_id, 1, text)
 		local body = vim.fn.json_decode(response.body)
 		local expected_comment = "First Line  \nThird Line"
 		assert.are.same(200, response.status)

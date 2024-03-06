@@ -97,7 +97,7 @@ function M.update_popup(comment_id, old_text)
 		local choice = vim.fn.confirm("Update comment?", "&Yes\n&No\n&Quit")
 		if choice == 1 then
 			new_text = vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
-			local response = M.update_comment(comment_id, repo.pr_id, new_text)
+			local response = M.send_request_to_update_comment(comment_id, repo.pr_id, new_text)
 			if response.status ~= 200 then
 				notify(response.body, "error")
 			elseif response.status == 200 then
@@ -199,7 +199,7 @@ end
 ---@param pr_id string: pr id to which the comment belong
 ---@param new_text string or table: the updated text
 ---@return table: the response from the api call
-function M.update_comment(comment_id, pr_id, new_text)
+function M.send_request_to_update_comment(comment_id, pr_id, new_text)
 	comment_id = tostring(comment_id)
 	pr_id = tostring(pr_id)
 	new_text = utils.lines_to_raw_text(new_text)
