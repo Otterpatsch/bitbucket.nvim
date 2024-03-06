@@ -116,6 +116,25 @@ function M.update_popup(comment_id, old_text)
 	popup:mount()
 end
 
+function M.handle_request_new_comment(bufnr, parent_id)
+	local response = M.send_request_to_add_comment(
+		parent_id,
+		repo.pr_id,
+		vim.api.nvim_buf_get_lines(bufnr, 0, vim.api.nvim_buf_line_count(bufnr), false)
+	)
+	if response.status ~= 201 then
+		notify(response.body, "error")
+	elseif response.status == 201 then
+		notify("Success", "Info")
+		local response_body = vim.fn.json_decode(response.body)
+		local node = tree.create_node(response_body, false)
+		node:expand()
+		repo.comment_tree:add_node(node, parent_id)
+		repo.comment_tree:render()
+		vim.api.nvim_buf_delete(bufnr, {})
+	end
+end
+
 ---Creates and mount a popup to edit a comment
 ---@param parent_id string or nil: the id of the comment which should be edited
 function M.new_comment_popup(parent_id)
@@ -123,22 +142,7 @@ function M.new_comment_popup(parent_id)
 	popup:map("n", "<leader><CR>", function()
 		local choice = vim.fn.confirm("Send comment?", "&Yes\n&No\n&Quit")
 		if choice == 1 then
-			local response = M.send_request_to_add_comment(
-				parent_id,
-				repo.pr_id,
-				vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
-			)
-			if response.status ~= 201 then
-				notify(response.body, "error")
-			elseif response.status == 201 then
-				notify("Success", "Info")
-				local response_body = vim.fn.json_decode(response.body)
-				local node = tree.create_node(response_body, false)
-				node:expand()
-				repo.comment_tree:add_node(node, parent_id)
-				repo.comment_tree:render()
-				vim.api.nvim_buf_delete(popup.bufnr, {})
-			end
+			M.handle_request_new_comment(popup.bufnr, parent_id)
 		elseif choice == 3 then
 			vim.api.nvim_buf_delete(popup.bufnr, {})
 		end
