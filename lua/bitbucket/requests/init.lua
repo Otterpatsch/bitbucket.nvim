@@ -146,7 +146,7 @@ function M.new_comment_popup(parent_id)
 	popup:mount()
 end
 
-function M.try_to_delete_comment(node_id)
+function M.delete_comment(node_id)
 	local response = M.send_request_to_delete_comment(node_id, repo.pr_id)
 	if response.status == 204 then
 		repo.comment_tree:remove_node(node_id)

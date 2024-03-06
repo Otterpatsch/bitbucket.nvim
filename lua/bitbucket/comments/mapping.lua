@@ -89,7 +89,7 @@ function M.add_keymap_actions(comment_split, tree)
 		end
 		local choice = vim.fn.confirm("Delete comment?", "&Yes\n&No")
 		if choice == 1 then
-			require("bitbucket.requests.init").try_to_delete_comment(node.id)
+			require("bitbucket.requests.init").delete_comment(node.id)
 		end
 	end)
 
