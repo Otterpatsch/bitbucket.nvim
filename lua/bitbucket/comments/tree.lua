@@ -98,8 +98,10 @@ end
 function M.create_node(comment_content, lastchild) --text, author, id, parent_id, date, lastchild, inline, deleted)
 	local parent_id = comment_content["parent"] and tostring(comment_content["parent"]["id"]) -- id needs to be string
 	local inline = M.get_inline_info(comment_content["inline"])
+	local text = comment_content["content"]["raw"]:gsub("\n\n", "\n")
+	text = text:gsub("  \n", "\n")
 	local node = NuiTree.Node({
-		text = comment_content["content"]["raw"],
+		text = text,
 		author = comment_content["user"]["display_name"],
 		id = tostring(comment_content["id"]),
 		parent_id = parent_id,
