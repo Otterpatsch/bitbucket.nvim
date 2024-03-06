@@ -9,7 +9,7 @@ describe("api comments", function()
 			"Second Line",
 			"Third Line",
 		}
-		local response = requests.new_comment(nil, 1, text)
+		local response = requests.send_request_to_add_comment(nil, 1, text)
 		local body = vim.fn.json_decode(response.body)
 		local expected_comment = "First Line of Comment  \nSecond Line  \nThird Line"
 		comment_id = tostring(body["id"])
@@ -27,7 +27,7 @@ describe("api comments", function()
 	end)
 	it("reply to a comment", function()
 		local text = "Reply (Test)"
-		local response = requests.new_comment(comment_id, 1, text)
+		local response = requests.send_request_to_add_comment(comment_id, 1, text)
 		local body = vim.fn.json_decode(response.body)
 		assert.are.same(201, response.status)
 		assert.are.same("Reply (Test)", body.content.raw)
@@ -41,7 +41,7 @@ describe("api comments", function()
 	end)
 	it("new_comment(Single Line)", function()
 		local text = "Single Line"
-		local response = requests.new_comment(nil, 1, text)
+		local response = requests.send_request_to_add_comment(nil, 1, text)
 		local body = vim.fn.json_decode(response.body)
 		local expected_comment = "Single Line"
 		assert.are.same(201, response.status)

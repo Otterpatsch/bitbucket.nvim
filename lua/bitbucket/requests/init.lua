@@ -123,7 +123,7 @@ function M.new_comment_popup(parent_id)
 	popup:map("n", "<leader><CR>", function()
 		local choice = vim.fn.confirm("Send comment?", "&Yes\n&No\n&Quit")
 		if choice == 1 then
-			local response = M.new_comment(
+			local response = M.send_request_to_add_comment(
 				parent_id,
 				repo.pr_id,
 				vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
@@ -162,7 +162,7 @@ end
 ---@param pr_id string nil: pr id to which the comment belong
 ---@param new_text string or table: the updated text
 ---@return table: the response from the api call
-function M.new_comment(parent_id, pr_id, new_text)
+function M.send_request_to_add_comment(parent_id, pr_id, new_text)
 	new_text = utils.lines_to_raw_text(new_text)
 	local request_url = base_request_url .. "pullrequests/" .. pr_id .. "/comments"
 	local data = nil
