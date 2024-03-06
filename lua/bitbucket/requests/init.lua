@@ -147,7 +147,7 @@ function M.new_comment_popup(parent_id)
 end
 
 function M.try_to_delete_comment(node_id)
-	local response = M.delete_comment(node_id, repo.pr_id)
+	local response = M.send_request_to_delete_comment(node_id, repo.pr_id)
 	if response.status == 204 then
 		repo.comment_tree:remove_node(node_id)
 		repo.comment_tree:render()
@@ -223,7 +223,7 @@ end
 ---@param comment_id string: comment id to update
 ---@param pr_id string: pr id to which the comment belong
 ---@return table: the response from the api call
-function M.delete_comment(comment_id, pr_id)
+function M.send_request_to_delete_comment(comment_id, pr_id)
 	comment_id = tostring(comment_id)
 	pr_id = tostring(pr_id)
 	local request_url = base_request_url .. "pullrequests/" .. pr_id .. "/comments/" .. comment_id
