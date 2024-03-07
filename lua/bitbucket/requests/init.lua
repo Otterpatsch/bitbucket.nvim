@@ -3,7 +3,6 @@ local curl = require("plenary").curl
 local notify = require("notify")
 local utils = require("bitbucket.utils")
 local repo = require("bitbucket.repo")
-local tree = require("bitbucket.comments.tree")
 local bitbucket_api = "https://api.bitbucket.org/2.0/repositories"
 local base_request_url = bitbucket_api .. "/" .. repo.workspace .. "/" .. repo.reposlug .. "/"
 
@@ -24,14 +23,10 @@ function M.get_comments_by_commit(commithash)
 		repo.pr_id = M.get_pullrequest_by_commit(commithash)
 	end
 	if repo.comments == nil then
-		repo.comments = M.request_comments_table(repo.pr_id)
+		local status = nil
+		repo.comments, status = M.request_comments_table(repo.pr_id)
 	end
-	---check if return of request_comments_table is not the same as current comments if so
-	if repo.comment_view ~= nil then
-		repo.comment_view:unmount()
-	end
-	repo.comment_view = tree.comments_view(repo.comments)
-	repo.comment_view:mount()
+	return repo.comments
 end
 
 ---Send a request to receive the Pull request id by a commithash
@@ -117,6 +112,7 @@ function M.update_popup(comment_id, old_text)
 end
 
 function M.handle_request_new_comment(bufnr, parent_id)
+	local tree = require("bitbucket.comments.tree")
 	local response = M.send_request_to_add_comment(
 		parent_id,
 		repo.pr_id,
