@@ -6,12 +6,6 @@ local repo = require("bitbucket.repo")
 local bitbucket_api = "https://api.bitbucket.org/2.0/repositories"
 local base_request_url = bitbucket_api .. "/" .. repo.workspace .. "/" .. repo.reposlug .. "/"
 
-function M.get_pull_requests()
-	-- get list of pull requests of PR
-	-- Just to show where are PR
-	-- and their corresponding branch
-end
-
 ---Create the comments_view of a PR
 ---Calls the responding function to present the comments summary
 ---view for a pull request which contains the given commithash
@@ -74,12 +68,6 @@ function M.request_comments_table(pr_id)
 		values = utils.concate_tables(values, content["values"])
 	end
 	return values, response.status
-end
-
-function M.create_pullrequest()
-	-- post method
-	request_url = base_request_url .. "pullrequests"
-	curl.post()
 end
 
 ---Creates and mount a popup to edit a comment
