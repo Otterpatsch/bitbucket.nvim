@@ -1,5 +1,5 @@
 require("diffview").setup()
-local requests = require("bitbucket.requests")
+local requests = require("bitbucket.requests.comments")
 
 describe("api comments", function()
 	local comment_id = nil

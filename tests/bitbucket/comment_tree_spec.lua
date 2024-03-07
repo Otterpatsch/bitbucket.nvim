@@ -1,6 +1,6 @@
 require("diffview").setup()
 local repo = require("bitbucket.repo")
-local requests = require("bitbucket.requests")
+local requests = require("bitbucket.requests.comments")
 local tree = require("bitbucket.comments.tree")
 local utils = require("bitbucket.utils")
 describe("helper functions", function()
