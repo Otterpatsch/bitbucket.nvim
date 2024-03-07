@@ -6,5 +6,7 @@ local M = {
 	username = vim.env.USER_NAME,
 	tabnr = nil,
 }
+bitbucket_api = "https://api.bitbucket.org/2.0/repositories"
+M.base_request_url = bitbucket_api .. "/" .. M.workspace .. "/" .. M.reposlug .. "/"
 
 return M

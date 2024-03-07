@@ -3,8 +3,6 @@ local curl = require("plenary").curl
 local notify = require("notify")
 local utils = require("bitbucket.utils")
 local repo = require("bitbucket.repo")
-local bitbucket_api = "https://api.bitbucket.org/2.0/repositories"
-local base_request_url = bitbucket_api .. "/" .. repo.workspace .. "/" .. repo.reposlug .. "/"
 
 ---Create the comments_view of a PR
 ---Calls the responding function to present the comments summary
@@ -29,7 +27,7 @@ end
 ---@return string: pull request id
 function M.get_pullrequest_by_commit(commithash)
 	local commit = commithash or vim.fn.system("git rev-parse --short HEAD"):gsub("%W", "")
-	local request_url = base_request_url .. "commit/" .. commit .. "/pullrequests"
+	local request_url = repo.base_request_url .. "commit/" .. commit .. "/pullrequests"
 	local response = curl.get(request_url, {
 		accept = "application/json",
 		auth = repo.username .. ":" .. repo.app_password,
@@ -51,7 +49,7 @@ end
 ---@return table: a table containing all the comments of a PR
 function M.request_comments_table(pr_id)
 	pr_id = pr_id or repo.pr_id
-	local request_url = base_request_url .. "/pullrequests/" .. pr_id .. "/comments"
+	local request_url = repo.base_request_url .. "/pullrequests/" .. pr_id .. "/comments"
 	local response = curl.get(request_url, {
 		accept = "application/json",
 		auth = repo.username .. ":" .. repo.app_password,
@@ -136,7 +134,7 @@ function M.new_comment_popup(parent_id)
 end
 
 function M.delete_comment(node_id)
-	local response = M.send_request_to_delete_comment(node_id, repo.pr_id)
+	local response = M.send_request_to_delete_comment(node_id, pr_id)
 	if response.status == 204 then
 		repo.comment_tree:remove_node(node_id)
 		repo.comment_tree:render()
@@ -153,7 +151,7 @@ end
 ---@return table: the response from the api call
 function M.send_request_to_add_comment(parent_id, pr_id, new_text)
 	new_text = utils.lines_to_raw_text(new_text)
-	local request_url = base_request_url .. "pullrequests/" .. pr_id .. "/comments"
+	local request_url = repo.base_request_url .. "pullrequests/" .. pr_id .. "/comments"
 	local data = nil
 
 	if parent_id then
@@ -192,7 +190,7 @@ function M.send_request_to_update_comment(comment_id, pr_id, new_text)
 	comment_id = tostring(comment_id)
 	pr_id = tostring(pr_id)
 	new_text = utils.lines_to_raw_text(new_text)
-	local request_url = base_request_url .. "pullrequests/" .. pr_id .. "/comments/" .. comment_id
+	local request_url = repo.base_request_url .. "pullrequests/" .. pr_id .. "/comments/" .. comment_id
 	local data = vim.fn.json_encode({
 		content = {
 			raw = new_text,
@@ -215,7 +213,7 @@ end
 function M.send_request_to_delete_comment(comment_id, pr_id)
 	comment_id = tostring(comment_id)
 	pr_id = tostring(pr_id)
-	local request_url = base_request_url .. "pullrequests/" .. pr_id .. "/comments/" .. comment_id
+	local request_url = repo.base_request_url .. "pullrequests/" .. pr_id .. "/comments/" .. comment_id
 	local response = curl.delete(request_url, {
 		auth = repo.username .. ":" .. repo.app_password,
 	})
