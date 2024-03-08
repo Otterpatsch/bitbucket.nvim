@@ -110,6 +110,7 @@ function M.handle_request_new_comment(bufnr, parent_id)
 	)
 	if response.status ~= 201 then
 		notify(response.body, "error")
+		return response
 	elseif response.status == 201 then
 		notify("Success", "Info")
 		local response_body = vim.fn.json_decode(response.body)
@@ -118,7 +119,7 @@ function M.handle_request_new_comment(bufnr, parent_id)
 		repo.comment_tree:add_node(node, parent_id)
 		repo.comment_tree:render()
 		vim.api.nvim_buf_delete(bufnr, {})
-		return node.id
+		return response
 	end
 end
 
