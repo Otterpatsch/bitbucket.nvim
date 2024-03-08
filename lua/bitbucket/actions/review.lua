@@ -9,12 +9,12 @@ function M.review()
 		vim.cmd("DiffviewOpen main")
 		repo.tabnr = vim.api.nvim_get_current_tabpage()
 	end
-	requests.get_comments_by_commit()
+	comments = requests.get_comments_by_commit()
 	---check if return of request_comments_table is not the same as current comments if so
 	if repo.comment_view ~= nil then
 		repo.comment_view:unmount()
 	end
-	repo.comment_view = tree.comments_view(repo.comments)
+	repo.comment_view = tree.comments_view(comments)
 	repo.comment_view:mount()
 end
 
