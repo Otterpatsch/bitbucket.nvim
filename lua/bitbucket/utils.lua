@@ -21,6 +21,10 @@ function M.create_popup(titel, width, height)
 	})
 end
 
+function M.confirm(titel, options)
+	return vim.fn.confirm(titel, options)
+end
+
 function M.dump(o)
 	if type(o) == "table" then
 		local s = "{ "

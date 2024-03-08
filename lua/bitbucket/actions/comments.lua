@@ -79,7 +79,7 @@ function M.update_popup(comment_id, old_text, pr_id)
 end
 
 function M.handle_request_update_comment(bufnr, comment_id, pr_id)
-	local choice = vim.fn.confirm("Update comment?", "&Yes\n&No\n&Quit")
+	local choice = utils.confirm("Update comment?", "&Yes\n&No\n&Quit")
 	if choice == 1 then
 		local new_text = vim.api.nvim_buf_get_lines(bufnr, 0, vim.api.nvim_buf_line_count(bufnr), false)
 		local response = M.send_request_to_update_comment(comment_id, pr_id, new_text)
@@ -127,7 +127,7 @@ end
 function M.new_comment_popup(parent_id)
 	local popup = utils.create_popup("Create Comment")
 	popup:map("n", "<leader><CR>", function()
-		local choice = vim.fn.confirm("Send comment?", "&Yes\n&No\n&Quit")
+		local choice = utils.confirm("Send comment?", "&Yes\n&No\n&Quit")
 		if choice == 1 then
 			M.handle_request_new_comment(popup.bufnr, parent_id)
 		elseif choice == 3 then

@@ -3,6 +3,7 @@ local notify = require("notify")
 local diffview_lib = require("diffview.lib")
 local requests = require("bitbucket.actions.comments")
 local repo = require("bitbucket.repo")
+local utils = require("bitbucket.utils")
 local M = {}
 
 function M.expand_tree(tree)
@@ -86,10 +87,10 @@ function M.add_keymap_actions(comment_split, tree)
 	comment_split:map("n", "d", function()
 		local node = tree:get_node()
 		if node:has_children() then
-			vim.fn.confirm("Can not delete a comment with sub comments.", "&Ok")
+			utils.confirm("Can not delete a comment with sub comments.", "&Ok")
 			return
 		end
-		local choice = vim.fn.confirm("Delete comment?", "&Yes\n&No")
+		local choice = utils.confirm("Delete comment?", "&Yes\n&No")
 		if choice == 1 then
 			requests.delete_comment(node.id)
 		end
