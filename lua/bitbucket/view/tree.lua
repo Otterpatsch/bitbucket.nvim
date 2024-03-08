@@ -3,7 +3,7 @@ local NuiSplit = require("nui.split")
 local Line = require("nui.line")
 local Text = require("nui.text")
 local repo = require("bitbucket.repo")
-local mapping = require("bitbucket.comments.mapping")
+local mapping = require("bitbucket.view.mapping")
 local M = {}
 
 function M.get_inline_info(inline)
@@ -28,35 +28,35 @@ end
 ---Return os.time from a given ISO 8601 date string.
 ---@param date string ISO 8601 formatted date string
 ---@return integer os.time
-local function convert_date_string_to_timestamp (date)
-  local year, month, day, hour, min, sec = date:match("(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)")
-  return os.time({ year = year, month = month, day = day, hour = hour, min = min, sec = sec })
+local function convert_date_string_to_timestamp(date)
+	local year, month, day, hour, min, sec = date:match("(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)")
+	return os.time({ year = year, month = month, day = day, hour = hour, min = min, sec = sec })
 end
 
 local function calculate_time_passed(comment_date)
-  local timestemp = convert_date_string_to_timestamp(comment_date)
-  local date = os.date("!*t")
-  local now = os.time({
-    year = date.year,
-    month = date.month,
-    day = date.day,
-    hour = date.hour,
-    min = date.min,
-    sec = date.sec,
-  })
-  local diff = now - timestemp
-  if diff < 60 then
-    return tostring(diff) .. " seconds ago"
-  elseif diff < 3600 then
-    return tostring(math.floor(diff / 60)) .. " minute ago"
-  elseif diff < 86400 then
-    return tostring(math.floor(diff / 3600)) .. " hour ago"
-  elseif diff < 2592000 then
-    return tostring(math.floor(diff / 86400)) .. " day ago"
-  else
-    local formatted_date = os.date("%B %e, %Y", timestemp)
-    return tostring(formatted_date)
-  end
+	local timestemp = convert_date_string_to_timestamp(comment_date)
+	local date = os.date("!*t")
+	local now = os.time({
+		year = date.year,
+		month = date.month,
+		day = date.day,
+		hour = date.hour,
+		min = date.min,
+		sec = date.sec,
+	})
+	local diff = now - timestemp
+	if diff < 60 then
+		return tostring(diff) .. " seconds ago"
+	elseif diff < 3600 then
+		return tostring(math.floor(diff / 60)) .. " minute ago"
+	elseif diff < 86400 then
+		return tostring(math.floor(diff / 3600)) .. " hour ago"
+	elseif diff < 2592000 then
+		return tostring(math.floor(diff / 86400)) .. " day ago"
+	else
+		local formatted_date = os.date("%B %e, %Y", timestemp)
+		return tostring(formatted_date)
+	end
 end
 
 ---Function which visualize the overall Pull Request Comments
@@ -98,8 +98,10 @@ end
 function M.create_node(comment_content, lastchild) --text, author, id, parent_id, date, lastchild, inline, deleted)
 	local parent_id = comment_content["parent"] and tostring(comment_content["parent"]["id"]) -- id needs to be string
 	local inline = M.get_inline_info(comment_content["inline"])
+	local text = comment_content["content"]["raw"]:gsub("\n\n", "\n")
+	text = text:gsub("  \n", "\n")
 	local node = NuiTree.Node({
-		text = comment_content["content"]["raw"],
+		text = text,
 		author = comment_content["user"]["display_name"],
 		id = tostring(comment_content["id"]),
 		parent_id = parent_id,
@@ -145,11 +147,11 @@ end
 
 function M.values_to_nodes(values)
 	local node_by_id = {}
-  local node_ids = {}
+	local node_ids = {}
 	for _, value in ipairs(values) do
 		local id = tostring(value["id"]) -- id needs to be string
 		node_by_id[id] = M.create_node(value, false)
-    table.insert(node_ids,id)
+		table.insert(node_ids, id)
 	end
 	return node_by_id, node_ids
 end
@@ -165,10 +167,7 @@ function M.node_visualize(node, parent_node)
 
 	local line = Line()
 	local line_length = 80
-	local header_text = " "
-		.. node.author
-    .. " "
-    .. calculate_time_passed(node.date)
+	local header_text = " " .. node.author .. " " .. calculate_time_passed(node.date)
 	header_text = header_text .. string.rep("─", line_length - string.len(header_text) - node:get_depth())
 	if node:is_expanded() then
 		if node:get_depth() > 1 then

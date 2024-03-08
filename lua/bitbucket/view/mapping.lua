@@ -1,6 +1,9 @@
 local async_ok, async = pcall(require, "diffview.async")
 local notify = require("notify")
 local diffview_lib = require("diffview.lib")
+local requests = require("bitbucket.actions.comments")
+local repo = require("bitbucket.repo")
+local utils = require("bitbucket.utils")
 local M = {}
 
 function M.expand_tree(tree)
@@ -66,28 +69,31 @@ function M.add_keymap_actions(comment_split, tree)
 		for _, raw_line in ipairs(vim.split(node.text, "\n")) do
 			table.insert(lines, raw_line)
 		end
-		require("bitbucket.requests.init").update_popup(node.id, lines)
+		requests.update_popup(node.id, lines, repo.pr_id)
 	end, map_options)
 
 	--- create new comment ----
 	comment_split:map("n", "c", function()
-		require("bitbucket.requests.init").new_comment_popup()
+		requests.new_comment_popup()
 	end, map_options)
 
 	--- reply to comment ---
 	comment_split:map("n", "r", function()
 		local node = tree:get_node()
-		require("bitbucket.requests.init").new_comment_popup(node.id)
+		requests.new_comment_popup(node.id)
 	end, map_options)
 
 	--- delete comment ---
 	comment_split:map("n", "d", function()
 		local node = tree:get_node()
 		if node:has_children() then
-			vim.fn.confirm("Can not delete a comment with sub comments.", "&Ok")
+			utils.confirm("Can not delete a comment with sub comments.", "&Ok")
 			return
 		end
-		require("bitbucket.requests.init").delete_comment_popup(node.id)
+		local choice = utils.confirm("Delete comment?", "&Yes\n&No")
+		if choice == 1 then
+			requests.delete_comment(node.id)
+		end
 	end)
 
 	--- jump to diff line ---
@@ -106,11 +112,11 @@ end
 ---@param updated_line number or vim.NIL: if on new line the line number
 ---@param old_line number or vim.NIL: if on old line the line number
 function M.jump_to_diff(file_path, updated_line, old_line)
-	if M.tabnr == nil then
+	if repo.tabnr == nil then
 		notify("Can't jump to Diffvew. Is it open?", vim.log.levels.ERROR)
 		return
 	end
-	vim.api.nvim_set_current_tabpage(M.tabnr)
+	vim.api.nvim_set_current_tabpage(repo.tabnr)
 	vim.cmd("DiffviewFocusFiles")
 	local view = diffview_lib.get_current_view()
 	if view == nil then
