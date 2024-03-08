@@ -54,7 +54,7 @@ function M.get_root_nodes()
 end
 
 function M.group_node_by_file(nodes)
-	nodes_by_file = {}
+	local nodes_by_file = {}
 	for _, node in ipairs(nodes) do
 		if nodes[node.inline.file] then
 			table.insert(nodes[node.inline.file], node)
