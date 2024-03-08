@@ -43,4 +43,26 @@ function M.setup_comment_indicators(file_path, comments)
 	end
 end
 
+function M.get_root_nodes()
+	local root_nodes = {}
+	for _, node in ipairs(repo.comment_tree:get_nodes()) do
+		if not node:get_parent_id() then
+			table.insert(root_nodes, node)
+		end
+	end
+	return root_nodes
+end
+
+function M.group_node_by_file(nodes)
+	nodes_by_file = {}
+	for _, node in ipairs(nodes) do
+		if nodes[node.inline.file] then
+			table.insert(nodes[node.inline.file], node)
+		else
+			nodes[node.inline.file] = { node }
+		end
+	end
+	return nodes_by_file
+end
+
 return M
