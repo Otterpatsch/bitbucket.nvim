@@ -1,4 +1,3 @@
-require("diffview").setup()
 local repo = require("bitbucket.repo")
 local requests = require("bitbucket.actions.comments")
 local tree = require("bitbucket.view.tree")
