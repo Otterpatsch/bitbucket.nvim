@@ -3,7 +3,7 @@ local NuiSplit = require("nui.split")
 local Line = require("nui.line")
 local Text = require("nui.text")
 local repo = require("bitbucket.repo")
-local mapping = require("bitbucket.comments.mapping")
+local mapping = require("bitbucket.view.mapping")
 local M = {}
 
 function M.get_inline_info(inline)
