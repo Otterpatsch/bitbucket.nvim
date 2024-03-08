@@ -1,5 +1,5 @@
 local diffview_lib = require("diffview.lib")
-local requests = require("bitbucket.requests.comments")
+local requests = require("bitbucket.actions.comments")
 local repo = require("bitbucket.repo")
 local tree = require("bitbucket.comments.tree")
 M = {}
