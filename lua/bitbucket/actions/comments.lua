@@ -97,7 +97,7 @@ function M.handle_request_update_comment(bufnr, comment_id, pr_id)
 		return response
 	elseif choice == 3 then
 		vim.api.nvim_buf_delete(bufnr, {})
-		return nil
+		return false
 	end
 end
 
