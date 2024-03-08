@@ -6,7 +6,7 @@ local signs = require("bitbucket.view.sign")
 
 ---Creates and sets the diagonstic signs for each file
 ---@param comments_by_file
-function M.setup_comment_indicators(comments_by_file)
+function M.setup_comment_indicators(file_path, comments)
 	if repo.tabnr == nil then
 		notify("Can't jump to Diffvew. Is it open?", vim.log.levels.ERROR)
 		return
@@ -21,20 +21,25 @@ function M.setup_comment_indicators(comments_by_file)
 	local files = view.panel:ordered_file_list()
 	local layout = view.cur_layout
 	for _, file in ipairs(files) do
-		notify(file.path)
-		--local comments_of_file = comments_by_file[file.path]
-		--for _, comment in iparis(comments_of_file) do
-		if not async_ok then
-			notify("Could not load Diffview async", vim.log.levels.ERROR)
-			return
+		if file.path == file_path then
+			notify(file.path)
+			if not async_ok then
+				notify("Could not load Diffview async", vim.log.levels.ERROR)
+				return
+			end
+			async.await(view:set_file(file))
+			-- TODO if old line then layout a else layout b
+			-- layout.a.file.bufnr
+			layout.a:focus()
+			local buffer_number = vim.api.nvim_get_current_buf()
+			local buffer_name = vim.api.nvim_buf_get_name(buffer_number)
+			signs.place_sign_comment(tostring(file.path), buffer_name, 1)
+			layout.b:focus()
+			local buffer_number = vim.api.nvim_get_current_buf()
+			local buffer_name = vim.api.nvim_buf_get_name(buffer_number)
+			signs.place_sign_comment(tostring(file.path), buffer_name, 1)
+			break
 		end
-		async.await(view:set_file(file))
-		-- TODO if old line then layout a else layout b
-		layout.a:focus()
-		local buffer_number = vim.api.nvim_get_current_buf()
-		local buffer_name = vim.api.nvim_buf_get_name(buffer_number)
-		signs.place_sign_comment(tostring(file.path), buffer_name, 1)
-		--end
 	end
 end
 
