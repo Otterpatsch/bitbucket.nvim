@@ -71,34 +71,38 @@ end
 ---Creates and mount a popup to edit a comment
 ---@param comment_id string: the id of the comment which should be edited
 ---@param old_text table: a table which contains lines by string
-function M.update_popup(comment_id, old_text)
+function M.update_popup(comment_id, old_text, pr_id)
 	local popup = utils.create_popup("Update Comment")
 	vim.api.nvim_buf_set_lines(popup.bufnr, 0, #old_text, false, old_text)
-	popup:map("n", "<leader><CR>", function()
-		local choice = vim.fn.confirm("Update comment?", "&Yes\n&No\n&Quit")
-		if choice == 1 then
-			new_text = vim.api.nvim_buf_get_lines(popup.bufnr, 0, vim.api.nvim_buf_line_count(popup.bufnr), false)
-			local response = M.send_request_to_update_comment(comment_id, repo.pr_id, new_text)
-			if response.status ~= 200 then
-				notify(response.body, "error")
-			elseif response.status == 200 then
-				notify("Success", "Info")
-				local respone_body = vim.fn.json_decode(response.body)
-				local node = repo.comment_tree:get_node(comment_id)
-				node.text = respone_body["content"]["raw"]
-				node:expand()
-				repo.comment_tree:render()
-			end
-			vim.api.nvim_buf_delete(popup.bufnr, {})
-		elseif choice == 3 then
-			vim.api.nvim_buf_delete(popup.bufnr, {})
-		end
-	end, { noremap = true })
+	popup:map("n", "<leader><CR>", M.handle_request_update_comment(popup.bufnr, comment_id, pr_id), { noremap = true })
 	popup:mount()
 end
 
+function M.handle_request_update_comment(bufnr, comment_id, pr_id)
+	local choice = vim.fn.confirm("Update comment?", "&Yes\n&No\n&Quit")
+	if choice == 1 then
+		local new_text = vim.api.nvim_buf_get_lines(bufnr, 0, vim.api.nvim_buf_line_count(bufnr), false)
+		local response = M.send_request_to_update_comment(comment_id, pr_id, new_text)
+		if response.status ~= 200 then
+			notify(response.body, "error")
+		elseif response.status == 200 then
+			notify("Success", "Info")
+			local respone_body = vim.fn.json_decode(response.body)
+			local node = repo.comment_tree:get_node(comment_id)
+			node.text = respone_body["content"]["raw"]
+			node:expand()
+			repo.comment_tree:render()
+		end
+		vim.api.nvim_buf_delete(bufnr, {})
+		return response
+	elseif choice == 3 then
+		vim.api.nvim_buf_delete(bufnr, {})
+		return nil
+	end
+end
+
 function M.handle_request_new_comment(bufnr, parent_id)
-	local tree = require("bitbucket.comments.tree")
+	local tree = require("bitbucket.view.tree")
 	local response = M.send_request_to_add_comment(
 		parent_id,
 		repo.pr_id,
