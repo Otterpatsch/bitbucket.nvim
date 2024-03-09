@@ -1,4 +1,5 @@
 local Popup = require("nui.popup")
+local Menu = require("nui.menu")
 local M = {}
 
 function M.create_popup(titel, width, height)
@@ -18,6 +19,51 @@ function M.create_popup(titel, width, height)
 				top_align = "center",
 			},
 		},
+	})
+end
+
+function M.create_menu(items, on_close, on_submit)
+	local lines = {}
+	for _, item in ipairs(items) do
+		if item.type == "item" then
+			table.insert(lines, Menu.item(item.text, item.values))
+		elseif item.type == "separator" then
+			table.insert(lines, Menu.separator(item.text))
+		else
+			print("Error")
+		end
+	end
+	return Menu({
+		position = "50%",
+		size = {
+			width = 25,
+			height = 5,
+		},
+		border = {
+			style = "single",
+			text = {
+				top = "Choose",
+				top_align = "center",
+			},
+		},
+		win_options = {
+			winhighlight = "Normal:Normal,FloatBorder:Normal",
+		},
+	}, {
+		lines = lines,
+		max_width = 20,
+		keymap = {
+			focus_next = { "j", "<Down>", "<Tab>" },
+			focus_prev = { "k", "<Up>", "<S-Tab>" },
+			close = { "<Esc>", "<C-c>" },
+			submit = { "<CR>", "<Space>" },
+		},
+		on_close = function(item)
+			return on_close(item)
+		end,
+		on_submit = function(item)
+			return on_submit(item)
+		end,
 	})
 end
 
