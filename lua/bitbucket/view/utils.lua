@@ -39,25 +39,31 @@ function M.setup_comment_indicators(file, comments)
 	end
 end
 
+---Get root nodes
 function M.get_root_nodes()
 	local root_nodes = {}
 	local nodes = repo.comment_tree:get_nodes()
 
 	for _, node in ipairs(nodes) do
-		if not node:get_parent_id() and node.inline then
+		if not node:get_parent_id() then
 			table.insert(root_nodes, node)
 		end
 	end
 	return root_nodes
 end
 
+---Group the given nodes by their file
+---@param nodes NuiTree.Node
+---@return table: whichs keys are the file and their corresponding comments
 function M.group_node_by_file(nodes)
 	local nodes_by_file = {}
 	for _, node in pairs(nodes) do
-		if nodes_by_file[node.inline.file] then
-			table.insert(nodes_by_file[node.inline.file], node)
-		else
-			nodes_by_file[node.inline.file] = { node }
+		if node.inline then
+			if nodes_by_file[node.inline.file] then
+				table.insert(nodes_by_file[node.inline.file], node)
+			else
+				nodes_by_file[node.inline.file] = { node }
+			end
 		end
 	end
 	return nodes_by_file
