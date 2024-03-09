@@ -2,6 +2,7 @@ local utils = require("bitbucket.view.utils")
 local repo = require("bitbucket.repo")
 local NuiTree = require("nui.tree")
 local tree = require("bitbucket.view.tree")
+local config = require("tests.config")
 
 describe("view utils", function()
 	local first = NuiTree.Node({
@@ -45,5 +46,9 @@ describe("view utils", function()
 			tree.add_node_to_tree(id, node_by_id)
 		end
 		assert.are.same({ first, second, third }, utils.get_root_nodes())
+	end)
+	it("Nodes by file", function()
+		local got = utils.group_node_by_file(config.raw_nodes)
+		assert.are.same(config.nodes_by_file, got)
 	end)
 end)
