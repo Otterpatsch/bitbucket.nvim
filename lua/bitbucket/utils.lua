@@ -25,21 +25,6 @@ function M.confirm(titel, options)
 	return vim.fn.confirm(titel, options)
 end
 
-function M.dump(o)
-	if type(o) == "table" then
-		local s = "{ "
-		for k, v in pairs(o) do
-			if type(k) ~= "number" then
-				k = '"' .. k .. '"'
-			end
-			s = s .. "[" .. k .. "] = " .. M.dump(v) .. ","
-		end
-		return s .. "} "
-	else
-		return tostring(o)
-	end
-end
-
 function M.create_vertial_split()
 	vim.cmd("vsplit")
 	local active_window = vim.api.nvim_get_current_win()
