@@ -5,4 +5,4 @@ XDG_CONFIG_HOME=$(pwd)/.test-config
 export XDG_CONFIG_HOME
 
 source .secrets
-nvim --headless -c "PlenaryBustedDirectory tests/bitbucket/ {sequential = true, keep_going=false}"
+nvim --headless -c "PlenaryBustedDirectory tests/bitbucket/ {init = 'tests/init.lua', sequential = true, keep_going=false}"

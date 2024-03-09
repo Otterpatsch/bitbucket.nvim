@@ -4,6 +4,7 @@ local diffview_lib = require("diffview.lib")
 local requests = require("bitbucket.actions.comments")
 local repo = require("bitbucket.repo")
 local utils = require("bitbucket.utils")
+local indicator = require("bitbucket.view.utils")
 local M = {}
 
 function M.expand_tree(tree)
@@ -132,6 +133,9 @@ function M.jump_to_diff(file_path, updated_line, old_line)
 				return
 			end
 			async.await(view:set_file(file))
+			local root_nodes = indicator.get_root_nodes()
+			local comments_on_files = indicator.group_node_by_file(root_nodes)
+			indicator.setup_comment_indicators(file, comments_on_files[file.path])
 			if updated_line ~= vim.NIL then
 				layout.b:focus()
 				vim.api.nvim_win_set_cursor(0, { tonumber(updated_line), 0 })
@@ -139,7 +143,7 @@ function M.jump_to_diff(file_path, updated_line, old_line)
 				layout.a:focus()
 				vim.api.nvim_win_set_cursor(0, { tonumber(old_line), 0 })
 			end
-			break
+			return
 		end
 	end
 end

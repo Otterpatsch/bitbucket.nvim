@@ -14,11 +14,7 @@ function M.get_comments_by_commit(commithash)
 	if repo.pr_id == nil then
 		repo.pr_id = M.get_pullrequest_by_commit(commithash)
 	end
-	if repo.comments == nil then
-		local status = nil
-		repo.comments, status = M.request_comments_table(repo.pr_id)
-	end
-	return repo.comments
+	return M.request_comments_table(repo.pr_id)
 end
 
 ---Send a request to receive the Pull request id by a commithash
