@@ -7,4 +7,18 @@ describe("api general", function()
 		assert.are.same(PR_ID, pullrequest_id)
 		assert.are.same(200, status)
 	end)
+	it("get summary of pullrequest", function()
+		repo.pr_id = PR_ID
+		local got = general.get_pullrequest_summary()
+		local expected = {
+			title = "Tests/branch for tests",
+			state = "OPEN",
+			author = "Ott Otterson",
+			closed_by = false,
+		}
+		assert.are.same(expected.title, got.title)
+		assert.are.same(expected.state, got.state)
+		assert.are.same(expected.author, got.author)
+		assert.are.same(expected.closed_by, got.closed_by)
+	end)
 end)
