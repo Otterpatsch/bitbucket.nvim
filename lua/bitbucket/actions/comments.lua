@@ -3,6 +3,7 @@ local curl = require("plenary").curl
 local notify = require("notify")
 local utils = require("bitbucket.utils")
 local repo = require("bitbucket.repo")
+local general = require("bitbucket.actions.general")
 
 ---Create the comments_view of a PR
 ---Calls the responding function to present the comments summary
@@ -12,30 +13,9 @@ local repo = require("bitbucket.repo")
 ---@return NuiTree: table which contains all the comments as nodes
 function M.get_comments_by_commit(commithash)
 	if repo.pr_id == nil then
-		repo.pr_id = M.get_pullrequest_by_commit(commithash)
+		repo.pr_id = general.get_pullrequest_by_commit(commithash)
 	end
 	return M.request_comments_table(repo.pr_id)
-end
-
----Send a request to receive the Pull request id by a commithash
----If no commithash is given then the current commit is taken
----@param commithash string: the shortened commit hash
----@return string: pull request id
-function M.get_pullrequest_by_commit(commithash)
-	local commit = commithash or vim.fn.system("git rev-parse --short HEAD"):gsub("%W", "")
-	local request_url = repo.base_request_url .. "commit/" .. commit .. "/pullrequests"
-	local response = curl.get(request_url, {
-		accept = "application/json",
-		auth = repo.username .. ":" .. repo.app_password,
-	})
-	local decoded_result = vim.fn.json_decode(response.body)
-	if #decoded_result["values"] ~= 1 then
-		-- Special chase if commit is present in multiple PRS
-		-- Then popup to choose PR
-		error("two elements: handling yet not implemented")
-	else
-		return tostring(decoded_result["values"][1]["id"]), response.status
-	end
 end
 
 ---Send a request to the bitbucket api to receive all comments on a given Pullrequest

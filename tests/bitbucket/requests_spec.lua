@@ -1,4 +1,5 @@
 local requests = require("bitbucket.actions.comments")
+local general = require("bitbucket.actions.general")
 
 describe("api comments", function()
 	local comment_id = nil
@@ -54,7 +55,7 @@ describe("api comments", function()
 		assert.are.same(200, status)
 	end)
 	it("get pullrequests by commithash", function()
-		local pullrequest_id, status = requests.get_pullrequest_by_commit("3400495")
+		local pullrequest_id, status = general.get_pullrequest_by_commit("3400495")
 		assert.are.same(PR_ID, pullrequest_id)
 		assert.are.same(200, status)
 	end)
