@@ -25,10 +25,8 @@ function M.get_pullrequest_by_commit(commithash)
 end
 
 ---Send a request to get the summary of a given pr id.
----@param pr_id string|nil: optional if none is given the repo.pr_id is used
-function M.get_pullrequest_summary(pr_id)
-	pr_id = pr_id or repo.pr_id
-	local request_url = repo.base_request_url .. "pullrequests/" .. pr_id
+function M.get_pullrequest_summary()
+	local request_url = repo.base_request_url .. "pullrequests/" .. repo.pr_id
 	local response = curl.get(request_url, {
 		accept = "application/json",
 		auth = repo.username .. ":" .. repo.app_password,
