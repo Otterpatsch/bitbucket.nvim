@@ -43,6 +43,11 @@ function M.get_pullrequest_summary(pr_id)
 	else
 		-- Attributes which might be useful
 		-- destination.commit.hash
+		-- closed_by = content.closed_by.nickname,
+		local closed_by = false
+		if content.closed_by ~= vim.NIL then
+			closed_by = content.closed_by.nickname
+		end
 		return {
 			status = 200,
 			title = content.title,
@@ -50,7 +55,7 @@ function M.get_pullrequest_summary(pr_id)
 			state = content.state,
 			close_source_branch = content.close_source_branch,
 			author = content.author.nickname,
-			closed_by = content.closed_by.nickname,
+			closed_by = closed_by,
 			destination_branch = content.destination.branch.name,
 			source_branch = content.source.branch.name,
 			reviewers = content.reviewers,
