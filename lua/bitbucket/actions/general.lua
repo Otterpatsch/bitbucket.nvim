@@ -43,7 +43,6 @@ function M.get_pullrequest_summary(pr_id)
 	else
 		-- Attributes which might be useful
 		-- destination.commit.hash
-		-- closed_by = content.closed_by.nickname,
 		local closed_by = false
 		if content.closed_by ~= vim.NIL then
 			closed_by = content.closed_by.nickname
