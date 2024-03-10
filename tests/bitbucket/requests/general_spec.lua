@@ -1,0 +1,10 @@
+local general = require("bitbucket.actions.general")
+local repo = require("bitbucket.repo")
+
+describe("api general", function()
+	it("get pullrequests by commithash", function()
+		local pullrequest_id, status = general.get_pullrequest_by_commit("3400495")
+		assert.are.same(PR_ID, pullrequest_id)
+		assert.are.same(200, status)
+	end)
+end)
