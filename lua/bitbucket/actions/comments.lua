@@ -47,18 +47,20 @@ end
 ---Creates and mount a popup to edit a comment
 ---@param comment_id string: the id of the comment which should be edited
 ---@param old_text table: a table which contains lines by string
-function M.update_popup(comment_id, old_text, pr_id)
+function M.update_popup(comment_id, old_text)
 	local popup = utils.create_popup("Update Comment")
 	vim.api.nvim_buf_set_lines(popup.bufnr, 0, #old_text, false, old_text)
-	popup:map("n", "<leader><CR>", M.handle_request_update_comment(popup.bufnr, comment_id, pr_id), { noremap = true })
+	popup:map("n", "<leader><CR>", function()
+		M.handle_request_update_comment(popup.bufnr, comment_id)
+	end, { noremap = true })
 	popup:mount()
 end
 
-function M.handle_request_update_comment(bufnr, comment_id, pr_id)
+function M.handle_request_update_comment(bufnr, comment_id)
 	local choice = utils.confirm("Update comment?", "&Yes\n&No\n&Quit")
 	if choice == 1 then
 		local new_text = vim.api.nvim_buf_get_lines(bufnr, 0, vim.api.nvim_buf_line_count(bufnr), false)
-		local response = M.send_request_to_update_comment(comment_id, pr_id, new_text)
+		local response = M.send_request_to_update_comment(comment_id, new_text)
 		if response.status ~= 200 then
 			notify(response.body, "error")
 		elseif response.status == 200 then
@@ -81,7 +83,6 @@ function M.handle_request_new_comment(bufnr, parent_id)
 	local tree = require("bitbucket.view.tree")
 	local response = M.send_request_to_add_comment(
 		parent_id,
-		repo.pr_id,
 		vim.api.nvim_buf_get_lines(bufnr, 0, vim.api.nvim_buf_line_count(bufnr), false)
 	)
 	if response.status ~= 201 then
@@ -115,7 +116,7 @@ function M.new_comment_popup(parent_id)
 end
 
 function M.delete_comment(node_id)
-	local response = M.send_request_to_delete_comment(node_id, pr_id)
+	local response = M.send_request_to_delete_comment(node_id)
 	if response.status == 204 then
 		repo.comment_tree:remove_node(node_id)
 		repo.comment_tree:render()
@@ -130,9 +131,9 @@ end
 ---@param pr_id string nil: pr id to which the comment belong
 ---@param new_text string or table: the updated text
 ---@return table: the response from the api call
-function M.send_request_to_add_comment(parent_id, pr_id, new_text)
+function M.send_request_to_add_comment(parent_id, new_text)
 	new_text = utils.lines_to_raw_text(new_text)
-	local request_url = repo.base_request_url .. "pullrequests/" .. pr_id .. "/comments"
+	local request_url = repo.base_request_url .. "pullrequests/" .. repo.pr_id .. "/comments"
 	local data = nil
 
 	if parent_id then
@@ -167,11 +168,10 @@ end
 ---@param pr_id string: pr id to which the comment belong
 ---@param new_text string or table: the updated text
 ---@return table: the response from the api call
-function M.send_request_to_update_comment(comment_id, pr_id, new_text)
+function M.send_request_to_update_comment(comment_id, new_text)
 	comment_id = tostring(comment_id)
-	pr_id = tostring(pr_id)
 	new_text = utils.lines_to_raw_text(new_text)
-	local request_url = repo.base_request_url .. "pullrequests/" .. pr_id .. "/comments/" .. comment_id
+	local request_url = repo.base_request_url .. "pullrequests/" .. repo.pr_id .. "/comments/" .. comment_id
 	local data = vim.fn.json_encode({
 		content = {
 			raw = new_text,
@@ -191,10 +191,9 @@ end
 ---@param comment_id string: comment id to update
 ---@param pr_id string: pr id to which the comment belong
 ---@return table: the response from the api call
-function M.send_request_to_delete_comment(comment_id, pr_id)
+function M.send_request_to_delete_comment(comment_id)
 	comment_id = tostring(comment_id)
-	pr_id = tostring(pr_id)
-	local request_url = repo.base_request_url .. "pullrequests/" .. pr_id .. "/comments/" .. comment_id
+	local request_url = repo.base_request_url .. "pullrequests/" .. repo.pr_id .. "/comments/" .. comment_id
 	local response = curl.delete(request_url, {
 		auth = repo.username .. ":" .. repo.app_password,
 	})

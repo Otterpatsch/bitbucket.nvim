@@ -15,29 +15,29 @@ describe("helper functions", function()
 		local response_body = vim.fn.json_decode(response.body)
 		node_id = tostring(response_body.id)
 		assert.are.same(201, response.status)
-		requests.delete_comment(tostring(response_body.id))
 	end)
 	it("update comment(chose yes)", function()
 		utils.confirm = function()
 			return 1
 		end
+		repo.pr_id = PR_ID
 		local bufnr = utils.create_vertial_split()
 		local lines = { "updated text", "SOme other line" }
 		vim.api.nvim_buf_set_lines(bufnr, 0, #lines, false, lines)
-		local response = requests.handle_request_update_comment(bufnr, node_id, PR_ID)
+		local response = requests.handle_request_update_comment(bufnr, node_id)
 		local response_body = vim.fn.json_decode(response.body)
 		assert.are.same("updated text  \nSOme other line", response_body.content.raw)
-		requests.delete_comment(tostring(response_body.id))
 	end)
 	it("update comment(chose quit)", function()
 		utils.confirm = function()
 			return 3
 		end
+		repo.pr_id = PR_ID
 		local bufnr = utils.create_vertial_split()
 		local lines = { "updated text", "SOme other line" }
 		vim.api.nvim_buf_set_lines(bufnr, 0, #lines, false, lines)
-		local response = requests.handle_request_update_comment(bufnr, node_id, PR_ID)
+		local response = requests.handle_request_update_comment(bufnr, node_id)
 		assert.are.same(false, response)
-		requests.delete_comment(node_id)
 	end)
+	requests.delete_comment(node_id)
 end)
