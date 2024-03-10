@@ -2,6 +2,7 @@ local M = {}
 local curl = require("plenary").curl
 local notify = require("notify")
 local repo = require("bitbucket.repo")
+local summary_layout = require("bitbucket.actions.summary_layout").create_summary_layout()
 
 ---Send a request to receive the Pull request id by a commithash
 ---If no commithash is given then the current commit is taken
@@ -58,6 +59,24 @@ function M.get_pullrequest_summary()
 			reviewers = content.reviewers,
 		}
 	end
+end
+
+function M.summary()
+	local layout = summary_layout.layout
+	local title_bufnr = summary_layout.title_bufnr
+	local summary_bufnr = summary_layout.summary_bufnr
+	local info_bufnr = summary_layout.info_bufnr
+
+	local content = M.get_pullrequest_summary(true)
+	local summary = {}
+	for _, line in ipairs(vim.split(content.summary, "\n")) do
+		table.insert(summary, line)
+	end
+	layout:mount()
+	vim.api.nvim_buf_set_lines(title_bufnr, 0, 1, false, { content.title })
+	vim.api.nvim_buf_set_option(title_bufnr, "modifiable", false)
+	vim.api.nvim_buf_set_lines(summary_bufnr, 0, #summary, false, summary)
+	vim.api.nvim_buf_set_option(summary_bufnr, "modifiable", false)
 end
 
 return M
