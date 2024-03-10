@@ -70,7 +70,7 @@ function M.add_keymap_actions(comment_split, tree)
 		for _, raw_line in ipairs(vim.split(node.text, "\n")) do
 			table.insert(lines, raw_line)
 		end
-		requests.update_popup(node.id, lines, repo.pr_id)
+		requests.update_popup(node.id, lines)
 	end, map_options)
 
 	--- create new comment ----
