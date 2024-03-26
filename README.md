@@ -2,7 +2,7 @@
 
 First of all. This plugin is in a very raw state and not feature complete! 
 
-This Neovim plugin is designed to make it easy to review BitBucket PRs.
+This Neovim plugin is designed to make it easy to review BitBucket PRs ( inspired by [gitlab.nvim](https://github.com/harrisoncramer/gitlab.nvim/)).
 
 - Create, approve, and merge PRs for the current selected branch.
 - Read and edit an PR description
