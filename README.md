@@ -4,14 +4,14 @@ First of all. This plugin is in a very raw state and not feature complete!
 
 This Neovim plugin is designed to make it easy to review BitBucket PRs ( inspired by [gitlab.nvim](https://github.com/harrisoncramer/gitlab.nvim/)).
 
-- Create, approve, and merge PRs for the current selected branch.
-- Read and edit an PR description
-- Add or remove reviewers
-- Resolve, reply to, and unresolve discussion threads
-- Create, edit, delete and solve tasks
-- Create, edit, delete, and reply to comments
-- View pipeline status
-- attach files
+- Create, approve, and merge PRs for the current selected branch. ❌
+- Read and edit an PR description ✅
+- Add or remove reviewers ❌
+- Resolve, reply to, and unresolve discussion threads ❌
+- Create, edit, delete and solve tasks ❌
+- Create, edit, delete, and reply to comments ✅
+- View pipeline status ❌
+- attach files ❌
 
 ## Quick Start
 
