@@ -2,7 +2,7 @@ local diffview_lib = require("diffview.lib")
 local requests = require("bitbucket.actions.comments")
 local repo = require("bitbucket.repo")
 local tree = require("bitbucket.view.tree")
-M = {}
+local M = {}
 function M.review()
 	local view = diffview_lib.get_current_view()
 	if not view then
